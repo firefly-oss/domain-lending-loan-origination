@@ -1,7 +1,7 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.workflows;
 
-import com.firefly.common.domain.cqrs.command.CommandBus;
-import com.firefly.common.domain.cqrs.query.QueryBus;
+import com.firefly.common.cqrs.command.CommandBus;
+import com.firefly.common.cqrs.query.QueryBus;
 import com.firefly.core.lending.origination.sdk.model.ApplicationStatusDTO;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationStatusHistoryDTO;

@@ -11,7 +11,6 @@ spring:
     virtual:
       enabled: true
 
-
 firefly:
   cqrs:
     enabled: true
@@ -24,14 +23,17 @@ firefly:
       caching-enabled: true          # Performance optimization enabled
       cache-ttl: 15m
   saga.performance.enabled: true
-  events:
+
+  eda:
     enabled: true
-    adapter: kafka  # or 'auto' for auto-detection
-    kafka:
-      bootstrap-servers: localhost:9092
-      retries: 3
-      batch-size: 16384
-      acks: all
+    default-publisher-type: KAFKA
+    default-connection-id: default
+    publishers:
+      kafka:
+        default:
+          enabled: true
+          default-topic: domain-layer
+          bootstrap-servers: localhost:9092
 
   stepevents:
     enabled: true

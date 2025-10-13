@@ -1,7 +1,7 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.handlers;
 
-import com.firefly.common.domain.cqrs.annotations.CommandHandlerComponent;
-import com.firefly.common.domain.cqrs.command.CommandHandler;
+import com.firefly.common.cqrs.annotations.CommandHandlerComponent;
+import com.firefly.common.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.ProposedOfferApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RegisterProposedOfferCommand;
 import reactor.core.publisher.Mono;

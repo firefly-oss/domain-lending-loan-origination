@@ -1,11 +1,11 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.handlers;
 
-import com.firefly.common.domain.cqrs.annotations.CommandHandlerComponent;
-import com.firefly.common.domain.cqrs.command.CommandHandler;
+import com.firefly.common.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.LoanApplicationsApi;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.UpdateApplicationStatusCommand;
 import reactor.core.publisher.Mono;
+import com.firefly.common.cqrs.annotations.CommandHandlerComponent;
 
 import java.util.Objects;
 import java.util.UUID;
