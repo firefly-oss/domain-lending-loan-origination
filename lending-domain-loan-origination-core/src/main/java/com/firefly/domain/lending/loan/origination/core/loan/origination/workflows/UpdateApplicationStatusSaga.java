@@ -9,10 +9,10 @@ import com.firefly.domain.lending.loan.origination.core.loan.origination.queries
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RegisterLoanApplicationStatusHistoryCommand;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.UpdateApplicationStatusCommand;
-import com.firefly.transactional.annotations.Saga;
-import com.firefly.transactional.annotations.SagaStep;
-import com.firefly.transactional.annotations.StepEvent;
-import com.firefly.transactional.core.SagaContext;
+import com.firefly.transactional.saga.annotations.Saga;
+import com.firefly.transactional.saga.annotations.SagaStep;
+import com.firefly.transactional.saga.annotations.StepEvent;
+import com.firefly.transactional.saga.core.SagaContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;

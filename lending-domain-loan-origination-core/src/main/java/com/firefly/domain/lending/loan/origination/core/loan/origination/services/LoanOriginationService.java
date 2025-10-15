@@ -2,7 +2,7 @@ package com.firefly.domain.lending.loan.origination.core.loan.origination.servic
 
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.*;
-import com.firefly.transactional.core.SagaResult;
+import com.firefly.transactional.saga.core.SagaResult;
 import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
