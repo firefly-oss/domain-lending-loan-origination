@@ -30,7 +30,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
         ),
         servers = {
                 @Server(
-                        url = "http://core.getfirefly.io/lending-domain-loan-origination",
+                        url = "http://core.getfirefly.io/domain-lending-loan-origination",
                         description = "Development Environment"
                 ),
                 @Server(

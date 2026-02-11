@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.firefly</groupId>
-        <artifactId>lending-domain-loan-origination</artifactId>
+        <artifactId>domain-lending-loan-origination</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>lending-domain-loan-origination-sdk</artifactId>
+    <artifactId>domain-lending-loan-origination-sdk</artifactId>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
@@ -29,7 +29,7 @@
         <!-- Web module for OpenAPI spec -->
         <dependency>
             <groupId>com.firefly</groupId>
-            <artifactId>lending-domain-loan-origination-web</artifactId>
+            <artifactId>domain-lending-loan-origination-web</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -101,7 +101,7 @@
                 <version>${openapi-generator.version}</version>
                 <executions>
                     <execution>
-                        <id>lending-domain-loan-origination-sdk</id>
+                        <id>domain-lending-loan-origination-sdk</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>

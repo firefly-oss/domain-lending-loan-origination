@@ -11,15 +11,15 @@
     </parent>
 
     <groupId>com.firefly</groupId>
-    <artifactId>lending-domain-loan-origination</artifactId>
+    <artifactId>domain-lending-loan-origination</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>lending-domain-loan-origination-core</module>
-        <module>lending-domain-loan-origination-interfaces</module>
-        <module>lending-domain-loan-origination-web</module>
-        <module>lending-domain-loan-origination-sdk</module>
-        <module>lending-domain-loan-origination-infra</module>
+        <module>domain-lending-loan-origination-core</module>
+        <module>domain-lending-loan-origination-interfaces</module>
+        <module>domain-lending-loan-origination-web</module>
+        <module>domain-lending-loan-origination-sdk</module>
+        <module>domain-lending-loan-origination-infra</module>
     </modules>
 
     <properties>
@@ -42,27 +42,27 @@
             <!-- Internal modules -->
             <dependency>
                 <groupId>com.firefly</groupId>
-                <artifactId>lending-domain-loan-origination-core</artifactId>
+                <artifactId>domain-lending-loan-origination-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.firefly</groupId>
-                <artifactId>lending-domain-loan-origination-interfaces</artifactId>
+                <artifactId>domain-lending-loan-origination-interfaces</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.firefly</groupId>
-                <artifactId>lending-domain-loan-origination-web</artifactId>
+                <artifactId>domain-lending-loan-origination-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.firefly</groupId>
-                <artifactId>lending-domain-loan-origination-sdk</artifactId>
+                <artifactId>domain-lending-loan-origination-sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.firefly</groupId>
-                <artifactId>lending-domain-loan-origination-infra</artifactId>
+                <artifactId>domain-lending-loan-origination-infra</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

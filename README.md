@@ -1,4 +1,4 @@
-# lending-domain-loan-origination
+# domain-lending-loan-origination
 
 Domain layer microservice for loan origination within the Firefly lending platform. This service orchestrates the complete loan application lifecycle -- from initial submission through underwriting scoring, document attachment, and final approval or rejection -- using saga-based workflows with full compensation support.
 
@@ -22,11 +22,11 @@ The Lending Domain Loan Origination service acts as the domain orchestration lay
 
 | Module | Purpose |
 |--------|---------|
-| `lending-domain-loan-origination-web` | Spring Boot application entry point, REST controller, actuator, and OpenAPI configuration |
-| `lending-domain-loan-origination-core` | Business logic: CQRS commands/queries, command and query handlers, saga workflow definitions, and the `LoanOriginationService` |
-| `lending-domain-loan-origination-interfaces` | Interface adapters bridging core logic and the web layer |
-| `lending-domain-loan-origination-infra` | Infrastructure concerns: `ClientFactory` for downstream API clients, `LoanOriginationProperties` configuration binding |
-| `lending-domain-loan-origination-sdk` | OpenAPI-generated client SDK (WebClient-based, reactive) for consumers of this service |
+| `domain-lending-loan-origination-web` | Spring Boot application entry point, REST controller, actuator, and OpenAPI configuration |
+| `domain-lending-loan-origination-core` | Business logic: CQRS commands/queries, command and query handlers, saga workflow definitions, and the `LoanOriginationService` |
+| `domain-lending-loan-origination-interfaces` | Interface adapters bridging core logic and the web layer |
+| `domain-lending-loan-origination-infra` | Infrastructure concerns: `ClientFactory` for downstream API clients, `LoanOriginationProperties` configuration binding |
+| `domain-lending-loan-origination-sdk` | OpenAPI-generated client SDK (WebClient-based, reactive) for consumers of this service |
 
 ### Technology Stack
 
@@ -132,13 +132,13 @@ mvn clean install
 ### Run
 
 ```bash
-mvn -pl lending-domain-loan-origination-web spring-boot:run
+mvn -pl domain-lending-loan-origination-web spring-boot:run
 ```
 
 Or with a specific profile:
 
 ```bash
-mvn -pl lending-domain-loan-origination-web spring-boot:run -Dspring-boot.run.profiles=dev
+mvn -pl domain-lending-loan-origination-web spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 ## API Endpoints
@@ -208,6 +208,6 @@ This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) fo
 
 ## Links
 
-- **Repository:** [https://github.com/firefly-oss/lending-domain-loan-origination](https://github.com/firefly-oss/lending-domain-loan-origination)
+- **Repository:** [https://github.com/firefly-oss/domain-lending-loan-origination](https://github.com/firefly-oss/domain-lending-loan-origination)
 - **FireflyFramework:** [https://github.com/fireflyframework/](https://github.com/fireflyframework/)
 - **Team Contact:** [dev@getfirefly.io](mailto:dev@getfirefly.io)
