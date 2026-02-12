@@ -1,7 +1,7 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.handlers;
 
-import com.firefly.common.cqrs.annotations.CommandHandlerComponent;
-import com.firefly.common.cqrs.command.CommandHandler;
+import org.fireflyframework.cqrs.annotations.CommandHandlerComponent;
+import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.UnderwritingScoreApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveUnderwritingScoreCommand;
 import reactor.core.publisher.Mono;
@@ -17,6 +17,6 @@ public class RemoveScoreHandler extends CommandHandler<RemoveUnderwritingScoreCo
 
     @Override
     protected Mono<Void> doHandle(RemoveUnderwritingScoreCommand cmd) {
-        return underwritingScoreApi.deleteScore(cmd.loanApplicationId(), cmd.underwritingScoreId()).then();
+        return underwritingScoreApi.deleteScore(cmd.loanApplicationId(), cmd.underwritingScoreId(), null).then();
     }
 }

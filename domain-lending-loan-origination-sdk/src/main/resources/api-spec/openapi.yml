@@ -713,40 +713,6 @@
   },
   "components": {
     "schemas": {
-      "RegisterApplicationCollateralCommand": {
-        "type": "object",
-        "properties": {
-          "applicationCollateralId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "loanApplicationId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "collateralTypeId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "estimatedValue": {
-            "type": "number"
-          },
-          "ownershipDetails": {
-            "type": "string"
-          },
-          "isPrimaryCollateral": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "RegisterApplicationDocumentCommand": {
         "type": "object",
         "properties": {
@@ -1064,12 +1030,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RegisterApplicationDocumentCommand"
-            }
-          },
-          "collaterals": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RegisterApplicationCollateralCommand"
             }
           },
           "offers": {

@@ -1,7 +1,7 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.handlers;
 
-import com.firefly.common.cqrs.annotations.CommandHandlerComponent;
-import com.firefly.common.cqrs.command.CommandHandler;
+import org.fireflyframework.cqrs.annotations.CommandHandlerComponent;
+import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.UnderwritingDecisionApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveUnderwritingDecisionCommand;
 import reactor.core.publisher.Mono;
@@ -17,6 +17,6 @@ public class RemoveDecisionHandler extends CommandHandler<RemoveUnderwritingDeci
 
     @Override
     protected Mono<Void> doHandle(RemoveUnderwritingDecisionCommand cmd) {
-        return underwritingDecisionApi.deleteDecision(cmd.loanApplicationId(), cmd.underwritingDecisionId()).then();
+        return underwritingDecisionApi.deleteDecision(cmd.loanApplicationId(), cmd.underwritingDecisionId(), null).then();
     }
 }

@@ -1,7 +1,7 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.handlers;
 
-import com.firefly.common.cqrs.annotations.CommandHandlerComponent;
-import com.firefly.common.cqrs.command.CommandHandler;
+import org.fireflyframework.cqrs.annotations.CommandHandlerComponent;
+import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.ProposedOfferApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveProposedOfferCommand;
 import reactor.core.publisher.Mono;
@@ -17,6 +17,6 @@ public class RemoveOfferHandler extends CommandHandler<RemoveProposedOfferComman
 
     @Override
     protected Mono<Void> doHandle(RemoveProposedOfferCommand cmd) {
-        return proposedOfferApi.deleteOffer(cmd.loanApplicationId(), cmd.proposedOfferId()).then();
+        return proposedOfferApi.deleteOffer(cmd.loanApplicationId(), cmd.proposedOfferId(), null).then();
     }
 }

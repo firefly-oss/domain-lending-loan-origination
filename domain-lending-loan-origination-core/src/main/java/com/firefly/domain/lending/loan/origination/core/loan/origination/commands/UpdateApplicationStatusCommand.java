@@ -1,6 +1,6 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.commands;
 
-import com.firefly.common.cqrs.command.Command;
+import org.fireflyframework.cqrs.command.Command;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetApplicationStatusQuery;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;

@@ -1,7 +1,7 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.handlers;
 
-import com.firefly.common.cqrs.annotations.QueryHandlerComponent;
-import com.firefly.common.cqrs.query.QueryHandler;
+import org.fireflyframework.cqrs.annotations.QueryHandlerComponent;
+import org.fireflyframework.cqrs.query.QueryHandler;
 import com.firefly.core.lending.origination.sdk.api.LoanApplicationsApi;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;
@@ -18,6 +18,6 @@ public class GetLoanApplicationHandler extends QueryHandler<GetLoanApplicationQu
 
     @Override
     protected Mono<LoanApplicationDTO> doHandle(GetLoanApplicationQuery cmd) {
-        return loanApplicationsApi.getLoanApplication(cmd.getLoanApplicationId());
+        return loanApplicationsApi.getLoanApplication(cmd.getLoanApplicationId(), null);
     }
 }

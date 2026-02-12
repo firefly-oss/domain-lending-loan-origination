@@ -1,6 +1,6 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.services.impl;
 
-import com.firefly.common.cqrs.query.QueryBus;
+import org.fireflyframework.cqrs.query.QueryBus;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.*;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;
@@ -9,10 +9,10 @@ import com.firefly.domain.lending.loan.origination.core.loan.origination.workflo
 import com.firefly.domain.lending.loan.origination.core.loan.origination.workflows.RegisterApplicationDocumentSaga;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.workflows.RegisterScoreSaga;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.workflows.UpdateApplicationStatusSaga;
-import com.firefly.transactional.saga.core.SagaResult;
-import com.firefly.transactional.saga.engine.ExpandEach;
-import com.firefly.transactional.saga.engine.SagaEngine;
-import com.firefly.transactional.saga.engine.StepInputs;
+import org.fireflyframework.transactional.saga.core.SagaResult;
+import org.fireflyframework.transactional.saga.engine.ExpandEach;
+import org.fireflyframework.transactional.saga.engine.SagaEngine;
+import org.fireflyframework.transactional.saga.engine.StepInputs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -37,7 +37,6 @@ public class LoanOriginationServiceImpl implements LoanOriginationService {
                 .forStep(RegisterApplicationSaga::registerLoanApplication, command.getApplication())
                 .forStep(RegisterApplicationSaga::registerApplicationParty, ExpandEach.of(command.getParties()))
                 .forStep(RegisterApplicationSaga::registerApplicationDocument, ExpandEach.of(command.getDocuments()))
-                .forStep(RegisterApplicationSaga::registerCollateral, ExpandEach.of(command.getCollaterals()))
                 .forStep(RegisterApplicationSaga::registerOffer, ExpandEach.of(command.getOffers()))
                 .forStep(RegisterApplicationSaga::registerStatus, ExpandEach.of(command.getStatusHistories()))
                 .forStep(RegisterApplicationSaga::registerScore, command.getScore())

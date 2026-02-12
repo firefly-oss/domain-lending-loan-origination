@@ -1,11 +1,11 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.workflows;
 
-import com.firefly.common.cqrs.command.CommandBus;
+import org.fireflyframework.cqrs.command.CommandBus;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.*;
-import com.firefly.transactional.saga.annotations.Saga;
-import com.firefly.transactional.saga.annotations.SagaStep;
-import com.firefly.transactional.saga.annotations.StepEvent;
-import com.firefly.transactional.saga.core.SagaContext;
+import org.fireflyframework.transactional.saga.annotations.Saga;
+import org.fireflyframework.transactional.saga.annotations.SagaStep;
+import org.fireflyframework.transactional.saga.annotations.StepEvent;
+import org.fireflyframework.transactional.saga.core.SagaContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -57,16 +57,6 @@ public class RegisterApplicationSaga {
 
     public Mono<Void> removeApplicationDocument(UUID applicationDocumentId, SagaContext ctx) {
         return commandBus.send(new RemoveApplicationDocumentCommand(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class), applicationDocumentId));
-    }
-
-    @SagaStep(id = STEP_REGISTER_APPLICATION_COLLATERAL, compensate = COMPENSATE_REMOVE_APPLICATION_COLLATERAL, dependsOn = STEP_REGISTER_LOAN_APPLICATION)
-    @StepEvent(type = EVENT_APPLICATION_COLLATERAL_REGISTERED)
-    public Mono<UUID> registerCollateral(RegisterApplicationCollateralCommand cmd, SagaContext ctx) {
-        return commandBus.send(cmd.withLoanApplicationId(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class)));
-    }
-
-    public Mono<Void> removeApplicationCollateral(UUID applicationCollateralId, SagaContext ctx) {
-        return commandBus.send(new RemoveApplicationCollateralCommand(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class), applicationCollateralId));
     }
 
     @SagaStep(id = STEP_REGISTER_OFFER, compensate = COMPENSATE_REMOVE_OFFER, dependsOn = STEP_REGISTER_LOAN_APPLICATION)

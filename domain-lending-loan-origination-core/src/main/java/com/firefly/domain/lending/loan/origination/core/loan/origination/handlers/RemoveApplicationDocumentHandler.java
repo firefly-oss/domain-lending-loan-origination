@@ -1,7 +1,7 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.handlers;
 
-import com.firefly.common.cqrs.annotations.CommandHandlerComponent;
-import com.firefly.common.cqrs.command.CommandHandler;
+import org.fireflyframework.cqrs.annotations.CommandHandlerComponent;
+import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.ApplicationDocumentApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveApplicationDocumentCommand;
 import reactor.core.publisher.Mono;
@@ -17,6 +17,6 @@ public class RemoveApplicationDocumentHandler extends CommandHandler<RemoveAppli
 
     @Override
     protected Mono<Void> doHandle(RemoveApplicationDocumentCommand cmd) {
-        return applicationDocumentApi.deleteDocument(cmd.loanApplicationId(), cmd.applicationDocumentId()).then();
+        return applicationDocumentApi.deleteDocument(cmd.loanApplicationId(), cmd.applicationDocumentId(), null).then();
     }
 }

@@ -23,11 +23,6 @@ public class ClientFactory {
     }
 
     @Bean
-    public ApplicationCollateralApi applicationCollateralApi() {
-        return new ApplicationCollateralApi(apiClient);
-    }
-
-    @Bean
     public ApplicationDocumentApi applicationDocumentApi() {
         return new ApplicationDocumentApi(apiClient);
     }
