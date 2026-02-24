@@ -9,10 +9,10 @@ import com.firefly.domain.lending.loan.origination.core.loan.origination.queries
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RegisterLoanApplicationStatusHistoryCommand;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.UpdateApplicationStatusCommand;
-import org.fireflyframework.transactional.saga.annotations.Saga;
-import org.fireflyframework.transactional.saga.annotations.SagaStep;
-import org.fireflyframework.transactional.saga.annotations.StepEvent;
-import org.fireflyframework.transactional.saga.core.SagaContext;
+import org.fireflyframework.orchestration.saga.annotation.Saga;
+import org.fireflyframework.orchestration.saga.annotation.SagaStep;
+import org.fireflyframework.orchestration.saga.annotation.StepEvent;
+import org.fireflyframework.orchestration.core.context.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -38,28 +38,28 @@ public class UpdateApplicationStatusSaga {
 
     @SagaStep(id = STEP_RETRIEVE_APPLICATION_STATUS)
     @StepEvent(type = EVENT_APPLICATION_STATUS_RETRIEVED)
-    public Mono<ApplicationStatusDTO> retrieveApplicationStatus(GetApplicationStatusQuery cmd, SagaContext ctx) {
+    public Mono<ApplicationStatusDTO> retrieveApplicationStatus(GetApplicationStatusQuery cmd, ExecutionContext ctx) {
         return queryBus.query(cmd)
-                .doOnNext(applicationStatus -> ctx.variables().put(CTX_APPLICATION_STATUS, applicationStatus));
+                .doOnNext(applicationStatus -> ctx.putVariable(CTX_APPLICATION_STATUS, applicationStatus));
     }
 
     @SagaStep(id = STEP_RETRIEVE_APPLICATION)
     @StepEvent(type = EVENT_APPLICATION_RETRIEVED)
-    public Mono<LoanApplicationDTO> retrieveLoanApplication(GetLoanApplicationQuery cmd, SagaContext ctx) {
+    public Mono<LoanApplicationDTO> retrieveLoanApplication(GetLoanApplicationQuery cmd, ExecutionContext ctx) {
         return queryBus.query(cmd)
-                .doOnNext(loanApplicationDTO -> ctx.variables().put(CTX_LOAN_APPLICATION, loanApplicationDTO));
+                .doOnNext(loanApplicationDTO -> ctx.putVariable(CTX_LOAN_APPLICATION, loanApplicationDTO));
     }
 
     @SagaStep(id = STEP_RETRIEVE_OLD_APPLICATION_STATUS, dependsOn = STEP_RETRIEVE_APPLICATION)
     @StepEvent(type = EVENT_OLD_APPLICATION_STATUS_RETRIEVED)
-    public Mono<ApplicationStatusDTO> retrieveOldApplicationStatus(GetApplicationStatusQuery cmd, SagaContext ctx) {
+    public Mono<ApplicationStatusDTO> retrieveOldApplicationStatus(GetApplicationStatusQuery cmd, ExecutionContext ctx) {
         return queryBus.query(cmd.withApplicationStatusId(ctx.getVariableAs(CTX_LOAN_APPLICATION, LoanApplicationDTO.class).getApplicationStatusId()))
-                .doOnNext(oldApplicationStatus -> ctx.variables().put(CTX_OLD_APPLICATION_STATUS, oldApplicationStatus));
+                .doOnNext(oldApplicationStatus -> ctx.putVariable(CTX_OLD_APPLICATION_STATUS, oldApplicationStatus));
     }
 
     @SagaStep(id = STEP_UPDATE_APPLICATION_STATUS, dependsOn = STEP_RETRIEVE_APPLICATION_STATUS)
     @StepEvent(type = EVENT_APPLICATION_STATUS_UPDATED)
-    public Mono<UUID> updateApplicationStatus(UpdateApplicationStatusCommand cmd, SagaContext ctx) {
+    public Mono<UUID> updateApplicationStatus(UpdateApplicationStatusCommand cmd, ExecutionContext ctx) {
         return commandBus.send(cmd
                         .withLoanApplication(ctx.getVariableAs(CTX_LOAN_APPLICATION, LoanApplicationDTO.class))
                         .withApplicationStatusId(ctx.getVariableAs(CTX_APPLICATION_STATUS, ApplicationStatusDTO.class).getApplicationStatusId()));
@@ -67,7 +67,7 @@ public class UpdateApplicationStatusSaga {
 
     @SagaStep(id = STEP_UPDATE_APPLICATION_STATUS_HISTORY, dependsOn = STEP_UPDATE_APPLICATION_STATUS)
     @StepEvent(type = EVENT_APPLICATION_STATUS_HISTORY_UPDATED)
-    public Mono<UUID> updateApplicationStatusHistory(UpdateApplicationStatusCommand cmd, SagaContext ctx) {
+    public Mono<UUID> updateApplicationStatusHistory(UpdateApplicationStatusCommand cmd, ExecutionContext ctx) {
         RegisterLoanApplicationStatusHistoryCommand cmdHistory = cmd.getStatusHistoryCommand();
         cmdHistory.setLoanApplicationId(ctx.getVariableAs(CTX_LOAN_APPLICATION, LoanApplicationDTO.class).getLoanApplicationId());
         cmdHistory.setOldStatus(LoanApplicationStatusHistoryDTO.OldStatusEnum.valueOf(ctx.getVariableAs(CTX_OLD_APPLICATION_STATUS, ApplicationStatusDTO.class).getCode()));

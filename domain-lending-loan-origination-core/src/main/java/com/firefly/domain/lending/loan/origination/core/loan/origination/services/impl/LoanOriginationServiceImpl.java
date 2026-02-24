@@ -9,10 +9,10 @@ import com.firefly.domain.lending.loan.origination.core.loan.origination.workflo
 import com.firefly.domain.lending.loan.origination.core.loan.origination.workflows.RegisterApplicationDocumentSaga;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.workflows.RegisterScoreSaga;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.workflows.UpdateApplicationStatusSaga;
-import org.fireflyframework.transactional.saga.core.SagaResult;
-import org.fireflyframework.transactional.saga.engine.ExpandEach;
-import org.fireflyframework.transactional.saga.engine.SagaEngine;
-import org.fireflyframework.transactional.saga.engine.StepInputs;
+import org.fireflyframework.orchestration.saga.engine.SagaResult;
+import org.fireflyframework.orchestration.saga.engine.ExpandEach;
+import org.fireflyframework.orchestration.saga.engine.SagaEngine;
+import org.fireflyframework.orchestration.saga.engine.StepInputs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -34,47 +34,47 @@ public class LoanOriginationServiceImpl implements LoanOriginationService {
     @Override
     public Mono<SagaResult> submitApplication(SubmitApplicationCommand command) {
         StepInputs inputs = StepInputs.builder()
-                .forStep(RegisterApplicationSaga::registerLoanApplication, command.getApplication())
-                .forStep(RegisterApplicationSaga::registerApplicationParty, ExpandEach.of(command.getParties()))
-                .forStep(RegisterApplicationSaga::registerApplicationDocument, ExpandEach.of(command.getDocuments()))
-                .forStep(RegisterApplicationSaga::registerOffer, ExpandEach.of(command.getOffers()))
-                .forStep(RegisterApplicationSaga::registerStatus, ExpandEach.of(command.getStatusHistories()))
-                .forStep(RegisterApplicationSaga::registerScore, command.getScore())
-                .forStep(RegisterApplicationSaga::registerDecision, command.getDecision())
+                .forStepId("registerLoanApplication", command.getApplication())
+                .forStepId("registerApplicationParty", ExpandEach.of(command.getParties()))
+                .forStepId("registerApplicationDocument", ExpandEach.of(command.getDocuments()))
+                .forStepId("registerOffer", ExpandEach.of(command.getOffers()))
+                .forStepId("registerStatus", ExpandEach.of(command.getStatusHistories()))
+                .forStepId("registerScore", command.getScore())
+                .forStepId("registerDecision", command.getDecision())
                 .build();
 
-        return engine.execute(RegisterApplicationSaga.class, inputs);
+        return engine.execute("RegisterApplicationSaga", inputs);
     }
 
     @Override
     public Mono<SagaResult> attachDocuments(UUID appId, RegisterApplicationDocumentCommand command) {
         StepInputs inputs = StepInputs.builder()
-                .forStep(RegisterApplicationDocumentSaga::registerApplicationDocument, command.withLoanApplicationId(appId))
+                .forStepId("registerApplicationDocument", command.withLoanApplicationId(appId))
                 .build();
 
-        return engine.execute(RegisterApplicationDocumentSaga.class, inputs);
+        return engine.execute("RegisterApplicationDocumentSaga", inputs);
     }
 
     @Override
     public Mono<SagaResult> scoreApplication(UUID appId, RegisterUnderwritingScoreCommand command) {
         StepInputs inputs = StepInputs.builder()
-                .forStep(RegisterScoreSaga::registerScore, command.withLoanApplicationId(appId))
+                .forStepId("registerScore", command.withLoanApplicationId(appId))
                 .build();
 
-        return engine.execute(RegisterScoreSaga.class, inputs);
+        return engine.execute("RegisterScoreSaga", inputs);
     }
 
     @Override
     public Mono<SagaResult> updateApplicationStatus(UpdateApplicationStatusCommand command) {
         StepInputs inputs = StepInputs.builder()
-                .forStep(UpdateApplicationStatusSaga::retrieveApplicationStatus, command.getApplicationStatusQuery())
-                .forStep(UpdateApplicationStatusSaga::retrieveLoanApplication, command.getApplicationQuery())
-                .forStep(UpdateApplicationStatusSaga::retrieveOldApplicationStatus, command.getApplicationStatusQuery())
-                .forStep(UpdateApplicationStatusSaga::updateApplicationStatus, command)
-                .forStep(UpdateApplicationStatusSaga::updateApplicationStatusHistory, command)
+                .forStepId("retrieveApplicationStatus", command.getApplicationStatusQuery())
+                .forStepId("retrieveApplication", command.getApplicationQuery())
+                .forStepId("retrieveOldApplicationStatus", command.getApplicationStatusQuery())
+                .forStepId("updateApplicationStatus", command)
+                .forStepId("updateApplicationStatusHistory", command)
                 .build();
 
-        return engine.execute(UpdateApplicationStatusSaga.class, inputs);
+        return engine.execute("UpdateApplicationStatusSaga", inputs);
     }
 
     @Override
