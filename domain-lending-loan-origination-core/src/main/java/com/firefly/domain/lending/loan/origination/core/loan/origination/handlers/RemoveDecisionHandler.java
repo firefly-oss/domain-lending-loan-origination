@@ -5,6 +5,7 @@ import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.UnderwritingDecisionApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveUnderwritingDecisionCommand;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @CommandHandlerComponent
 public class RemoveDecisionHandler extends CommandHandler<RemoveUnderwritingDecisionCommand, Void> {
@@ -17,6 +18,6 @@ public class RemoveDecisionHandler extends CommandHandler<RemoveUnderwritingDeci
 
     @Override
     protected Mono<Void> doHandle(RemoveUnderwritingDecisionCommand cmd) {
-        return underwritingDecisionApi.deleteDecision(cmd.loanApplicationId(), cmd.underwritingDecisionId(), null).then();
+        return underwritingDecisionApi.deleteDecision(cmd.loanApplicationId(), cmd.underwritingDecisionId(), UUID.randomUUID().toString()).then();
     }
 }

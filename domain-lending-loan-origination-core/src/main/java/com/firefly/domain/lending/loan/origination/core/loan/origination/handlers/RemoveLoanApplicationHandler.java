@@ -6,6 +6,7 @@ import com.firefly.core.lending.origination.sdk.api.LoanApplicationsApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveApplicationPartyCommand;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveLoanApplicationCommand;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @CommandHandlerComponent
 public class RemoveLoanApplicationHandler extends CommandHandler<RemoveLoanApplicationCommand, Void> {
@@ -18,6 +19,6 @@ public class RemoveLoanApplicationHandler extends CommandHandler<RemoveLoanAppli
 
     @Override
     protected Mono<Void> doHandle(RemoveLoanApplicationCommand cmd) {
-        return loanApplicationsApi.deleteLoanApplication(cmd.loanApplicationId(), null).then();
+        return loanApplicationsApi.deleteLoanApplication(cmd.loanApplicationId(), UUID.randomUUID().toString()).then();
     }
 }

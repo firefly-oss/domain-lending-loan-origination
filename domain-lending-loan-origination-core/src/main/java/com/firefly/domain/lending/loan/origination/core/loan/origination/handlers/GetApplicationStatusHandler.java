@@ -6,6 +6,7 @@ import com.firefly.core.lending.origination.sdk.api.ApplicationStatusApi;
 import com.firefly.core.lending.origination.sdk.model.ApplicationStatusDTO;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetApplicationStatusQuery;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @QueryHandlerComponent(cacheable = false)
 public class GetApplicationStatusHandler extends QueryHandler<GetApplicationStatusQuery, ApplicationStatusDTO> {
@@ -19,8 +20,8 @@ public class GetApplicationStatusHandler extends QueryHandler<GetApplicationStat
     @Override
     protected Mono<ApplicationStatusDTO> doHandle(GetApplicationStatusQuery cmd) {
         if(null!=cmd.getApplicationStatusId()){
-            return applicationStatusApi.getApplicationStatus(cmd.getApplicationStatusId(), null);
+            return applicationStatusApi.getApplicationStatus(cmd.getApplicationStatusId(), UUID.randomUUID().toString());
         }
-        return applicationStatusApi.getApplicationStatusByCode(cmd.getApplicationStatusCode(), null);
+        return applicationStatusApi.getApplicationStatusByCode(cmd.getApplicationStatusCode(), UUID.randomUUID().toString());
     }
 }

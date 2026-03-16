@@ -5,6 +5,7 @@ import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.ApplicationPartyApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveApplicationPartyCommand;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @CommandHandlerComponent
 public class RemoveApplicationPartyHandler extends CommandHandler<RemoveApplicationPartyCommand, Void> {
@@ -17,6 +18,6 @@ public class RemoveApplicationPartyHandler extends CommandHandler<RemoveApplicat
 
     @Override
     protected Mono<Void> doHandle(RemoveApplicationPartyCommand cmd) {
-        return applicationPartyApi.deleteParty(cmd.loanApplicationId(), cmd.applicationPartyId(), null).then();
+        return applicationPartyApi.deleteParty(cmd.loanApplicationId(), cmd.applicationPartyId(), UUID.randomUUID().toString()).then();
     }
 }

@@ -5,6 +5,7 @@ import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.ProposedOfferApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveProposedOfferCommand;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @CommandHandlerComponent
 public class RemoveOfferHandler extends CommandHandler<RemoveProposedOfferCommand, Void> {
@@ -17,6 +18,6 @@ public class RemoveOfferHandler extends CommandHandler<RemoveProposedOfferComman
 
     @Override
     protected Mono<Void> doHandle(RemoveProposedOfferCommand cmd) {
-        return proposedOfferApi.deleteOffer(cmd.loanApplicationId(), cmd.proposedOfferId(), null).then();
+        return proposedOfferApi.deleteOffer(cmd.loanApplicationId(), cmd.proposedOfferId(), UUID.randomUUID().toString()).then();
     }
 }

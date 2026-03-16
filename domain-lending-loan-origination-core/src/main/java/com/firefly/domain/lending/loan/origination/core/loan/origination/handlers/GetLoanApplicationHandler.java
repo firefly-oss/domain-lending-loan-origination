@@ -6,6 +6,7 @@ import com.firefly.core.lending.origination.sdk.api.LoanApplicationsApi;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @QueryHandlerComponent
 public class GetLoanApplicationHandler extends QueryHandler<GetLoanApplicationQuery, LoanApplicationDTO> {
@@ -18,6 +19,6 @@ public class GetLoanApplicationHandler extends QueryHandler<GetLoanApplicationQu
 
     @Override
     protected Mono<LoanApplicationDTO> doHandle(GetLoanApplicationQuery cmd) {
-        return loanApplicationsApi.getLoanApplication(cmd.getLoanApplicationId(), null);
+        return loanApplicationsApi.getLoanApplication(cmd.getLoanApplicationId(), UUID.randomUUID().toString());
     }
 }

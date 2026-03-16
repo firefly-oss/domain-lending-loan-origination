@@ -5,6 +5,7 @@ import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.ApplicationDocumentApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveApplicationDocumentCommand;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @CommandHandlerComponent
 public class RemoveApplicationDocumentHandler extends CommandHandler<RemoveApplicationDocumentCommand, Void> {
@@ -17,6 +18,6 @@ public class RemoveApplicationDocumentHandler extends CommandHandler<RemoveAppli
 
     @Override
     protected Mono<Void> doHandle(RemoveApplicationDocumentCommand cmd) {
-        return applicationDocumentApi.deleteDocument(cmd.loanApplicationId(), cmd.applicationDocumentId(), null).then();
+        return applicationDocumentApi.deleteDocument(cmd.loanApplicationId(), cmd.applicationDocumentId(), UUID.randomUUID().toString()).then();
     }
 }

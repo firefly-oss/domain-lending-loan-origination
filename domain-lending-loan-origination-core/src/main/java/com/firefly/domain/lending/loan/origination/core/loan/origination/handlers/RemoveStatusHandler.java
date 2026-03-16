@@ -5,6 +5,7 @@ import org.fireflyframework.cqrs.command.CommandHandler;
 import com.firefly.core.lending.origination.sdk.api.LoanApplicationStatusHistoryApi;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.RemoveLoanApplicationStatusHistoryCommand;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @CommandHandlerComponent
 public class RemoveStatusHandler extends CommandHandler<RemoveLoanApplicationStatusHistoryCommand, Void> {
@@ -17,6 +18,6 @@ public class RemoveStatusHandler extends CommandHandler<RemoveLoanApplicationSta
 
     @Override
     protected Mono<Void> doHandle(RemoveLoanApplicationStatusHistoryCommand cmd) {
-        return loanApplicationStatusHistoryApi.deleteStatusHistory(cmd.loanApplicationId(), cmd.statusHistoryId(), null).then();
+        return loanApplicationStatusHistoryApi.deleteStatusHistory(cmd.loanApplicationId(), cmd.statusHistoryId(), UUID.randomUUID().toString()).then();
     }
 }
