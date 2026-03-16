@@ -61,4 +61,29 @@ public class ClientFactory {
     public ApplicationStatusApi applicationStatusApi() {
         return new ApplicationStatusApi(apiClient);
     }
+
+    @Bean
+    public ApplicationConditionApi applicationConditionApi() {
+        return new ApplicationConditionApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationFeeApi applicationFeeApi() {
+        return new ApplicationFeeApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationTaskApi applicationTaskApi() {
+        return new ApplicationTaskApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationVerificationApi applicationVerificationApi() {
+        return new ApplicationVerificationApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationExternalBankAccountsApi applicationExternalBankAccountsApi() {
+        return new ApplicationExternalBankAccountsApi(apiClient);
+    }
 }
