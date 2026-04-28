@@ -1,0 +1,1503 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:18080
+  description: Generated server url
+tags:
+- name: Loan Origination
+  description: CQ queries and registration for Loan Origination
+paths:
+  /api/v1/loan-applications:
+    post:
+      tags:
+      - Loan Origination
+      summary: Submit application
+      description: "Submit an application with product, amount, currency, and channel."
+      operationId: submitApplication
+      parameters:
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitApplicationCommand"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/loan-applications/{appId}/withdraw:
+    post:
+      tags:
+      - Loan Origination
+      summary: Withdraw application
+      description: Withdraw the application by applicant request.
+      operationId: withdrawApplication
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/loan-applications/{appId}/score:
+    post:
+      tags:
+      - Loan Origination
+      summary: Score application
+      description: Persist model score with model and version metadata.
+      operationId: scoreApplication
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUnderwritingScoreCommand"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/loan-applications/{appId}/reject:
+    post:
+      tags:
+      - Loan Origination
+      summary: Reject application
+      description: "Reject with reason for risk, eligibility, or documentation issues."
+      operationId: rejectApplication
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/loan-applications/{appId}/documents:
+    post:
+      tags:
+      - Loan Origination
+      summary: Attach documents
+      description: "Attach supporting documents including income, statements, and\
+        \ collateral."
+      operationId: attachDocuments
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterApplicationDocumentCommand"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/loan-applications/{appId}/approve:
+    post:
+      tags:
+      - Loan Origination
+      summary: Approve application
+      description: "Approve with terms including rate, tenor, and fees aligned with\
+        \ product rules."
+      operationId: approveApplication
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/loan-origination/applications/{applicationId}/verifications:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application verifications
+      operationId: getApplicationVerifications
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application verifications retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseApplicationVerificationDTO"
+  /api/v1/loan-origination/applications/{applicationId}/tasks:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application tasks
+      operationId: getApplicationTasks
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application tasks retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseApplicationTaskDTO"
+  /api/v1/loan-origination/applications/{applicationId}/parties:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application parties
+      operationId: getApplicationParties
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application parties retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseApplicationPartyDTO"
+  /api/v1/loan-origination/applications/{applicationId}/offers:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application offers
+      operationId: getApplicationOffers
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application offers retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseProposedOfferDTO"
+  /api/v1/loan-origination/applications/{applicationId}/fees:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application fees
+      operationId: getApplicationFees
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application fees retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseApplicationFeeDTO"
+  /api/v1/loan-origination/applications/{applicationId}/documents:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application documents
+      operationId: getApplicationDocuments
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application documents retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseApplicationDocumentDTO"
+  /api/v1/loan-origination/applications/{applicationId}/detail:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application detail
+      operationId: getApplicationDetail
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application detail retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoanApplicationDTO"
+  /api/v1/loan-origination/applications/{applicationId}/decisions:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application decisions
+      operationId: getApplicationDecisions
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application decisions retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseUnderwritingDecisionDTO"
+  /api/v1/loan-origination/applications/{applicationId}/conditions:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application conditions
+      operationId: getApplicationConditions
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application conditions retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseApplicationConditionDTO"
+  /api/v1/loan-origination/applications/{applicationId}/bank-accounts:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application bank accounts
+      operationId: getApplicationBankAccounts
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application bank accounts retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaginationResponseApplicationExternalBankAccountDTO"
+  /api/v1/loan-applications/{appId}:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application
+      description: Retrieve application state and audit log.
+      operationId: getApplication
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoanApplicationDTO"
+components:
+  schemas:
+    RegisterApplicationDocumentCommand:
+      required:
+      - documentId
+      - documentTypeId
+      - isMandatory
+      - isReceived
+      - loanApplicationId
+      type: object
+      properties:
+        applicationDocumentId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        documentId:
+          type: string
+          format: uuid
+        documentTypeId:
+          type: string
+          format: uuid
+        isMandatory:
+          type: boolean
+        isReceived:
+          type: boolean
+        receivedAt:
+          type: string
+          format: date-time
+        documentName:
+          type: string
+        fileSizeBytes:
+          type: integer
+          format: int64
+        mimeType:
+          type: string
+        verificationStatus:
+          type: string
+        verifiedBy:
+          type: string
+          format: uuid
+        verifiedAt:
+          type: string
+          format: date-time
+        rejectionReason:
+          type: string
+        expiryDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    RegisterApplicationPartyCommand:
+      required:
+      - employmentTypeId
+      - loanApplicationId
+      - partyId
+      - roleCodeId
+      type: object
+      properties:
+        applicationPartyId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        partyId:
+          type: string
+          format: uuid
+        roleCodeId:
+          type: string
+          format: uuid
+        sharePercentage:
+          type: number
+        annualIncome:
+          type: number
+        monthlyExpenses:
+          type: number
+        employmentTypeId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    RegisterLoanApplicationCommand:
+      required:
+      - applicationDate
+      - applicationStatusId
+      - applicationSubStatusId
+      - submissionChannelId
+      type: object
+      properties:
+        loanApplicationId:
+          type: string
+          format: uuid
+        applicationNumber:
+          type: string
+          format: uuid
+        applicationStatusId:
+          type: string
+          format: uuid
+        applicationSubStatusId:
+          type: string
+          format: uuid
+        applicationDate:
+          type: string
+          format: date
+        submissionChannelId:
+          type: string
+          format: uuid
+        distributorId:
+          type: string
+          format: uuid
+        distributorAgencyId:
+          type: string
+          format: uuid
+        distributorAgentId:
+          type: string
+          format: uuid
+        businessUnit:
+          type: string
+        branchId:
+          type: string
+          format: uuid
+        loanPurpose:
+          type: string
+        loanPurposeDescription:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+        firstReviewAt:
+          type: string
+          format: date-time
+        decisionDueDate:
+          type: string
+          format: date
+        expectedClosingDate:
+          type: string
+          format: date
+        loanOfficerId:
+          type: string
+          format: uuid
+        assignedAt:
+          type: string
+          format: date-time
+        isRush:
+          type: boolean
+        isException:
+          type: boolean
+        requiresManualReview:
+          type: boolean
+        externalReferenceNumber:
+          type: string
+        sourceSystem:
+          type: string
+        disbursementMethodType:
+          type: string
+          enum:
+          - INTERNAL_ACCOUNT
+          - EXTERNAL_ACCOUNT
+        disbursementInternalAccountId:
+          type: string
+          format: uuid
+        disbursementExternalBankAccountId:
+          type: string
+          format: uuid
+        paymentCollectionMethodType:
+          type: string
+          enum:
+          - INTERNAL_ACCOUNT
+          - EXTERNAL_ACCOUNT
+        paymentCollectionInternalAccountId:
+          type: string
+          format: uuid
+        paymentCollectionExternalBankAccountId:
+          type: string
+          format: uuid
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    RegisterLoanApplicationStatusHistoryCommand:
+      required:
+      - changedAt
+      - changedBy
+      - loanApplicationId
+      - newStatus
+      - oldStatus
+      type: object
+      properties:
+        statusHistoryId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        oldStatus:
+          type: string
+          enum:
+          - DRAFT
+          - SUBMITTED
+          - UNDER_REVIEW
+          - APPROVED
+          - REJECTED
+          - CANCELLED
+        newStatus:
+          type: string
+          enum:
+          - DRAFT
+          - SUBMITTED
+          - UNDER_REVIEW
+          - APPROVED
+          - REJECTED
+          - CANCELLED
+        changeReason:
+          type: string
+        changedAt:
+          type: string
+          format: date-time
+        changedBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    RegisterProposedOfferCommand:
+      required:
+      - loanApplicationId
+      - productId
+      - requestedAmount
+      - requestedInterestRate
+      - requestedTenorMonths
+      type: object
+      properties:
+        proposedOfferId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        requestedAmount:
+          type: number
+        requestedTenorMonths:
+          type: integer
+          format: int32
+        requestedInterestRate:
+          type: number
+        validUntil:
+          type: string
+          format: date
+        offerStatus:
+          type: string
+        acceptedAt:
+          type: string
+          format: date-time
+        acceptedBy:
+          type: string
+          format: uuid
+        rejectionReason:
+          type: string
+        monthlyPayment:
+          type: number
+        totalInterest:
+          type: number
+        totalAmount:
+          type: number
+        apr:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    RegisterUnderwritingDecisionCommand:
+      required:
+      - decisionCodeId
+      - decisionDate
+      - loanApplicationId
+      type: object
+      properties:
+        underwritingDecisionId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        decisionDate:
+          type: string
+          format: date-time
+        decisionCodeId:
+          type: string
+          format: uuid
+        approvedAmount:
+          type: number
+        approvedInterestRate:
+          type: number
+        tenorMonths:
+          type: integer
+          format: int32
+        riskGradeId:
+          type: string
+          format: uuid
+        remarks:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    RegisterUnderwritingScoreCommand:
+      required:
+      - loanApplicationId
+      - scoreValue
+      - scorecardName
+      - scoringTimestamp
+      type: object
+      properties:
+        underwritingScoreId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        scoreValue:
+          type: number
+        scorecardName:
+          type: string
+        reasonCodes:
+          type: string
+        scoringTimestamp:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    SubmitApplicationCommand:
+      type: object
+      properties:
+        application:
+          $ref: "#/components/schemas/RegisterLoanApplicationCommand"
+        parties:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegisterApplicationPartyCommand"
+        documents:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegisterApplicationDocumentCommand"
+        offers:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegisterProposedOfferCommand"
+        statusHistories:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegisterLoanApplicationStatusHistoryCommand"
+        score:
+          $ref: "#/components/schemas/RegisterUnderwritingScoreCommand"
+        decision:
+          $ref: "#/components/schemas/RegisterUnderwritingDecisionCommand"
+    ApplicationVerificationDTO:
+      required:
+      - loanApplicationId
+      - verificationStatus
+      - verificationType
+      type: object
+      properties:
+        verificationId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        verificationType:
+          type: string
+        verificationStatus:
+          type: string
+        verificationMethod:
+          type: string
+        verifiedBy:
+          type: string
+        verifiedAt:
+          type: string
+          format: date-time
+        verificationData:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PaginationResponseApplicationVerificationDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationVerificationDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+    ApplicationTaskDTO:
+      required:
+      - loanApplicationId
+      - taskType
+      type: object
+      properties:
+        taskId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        taskType:
+          type: string
+        taskStatus:
+          type: string
+        priority:
+          type: string
+        assignedTo:
+          type: string
+        assignedAt:
+          type: string
+          format: date-time
+        dueDate:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        completedBy:
+          type: string
+        description:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PaginationResponseApplicationTaskDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationTaskDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+    ApplicationPartyDTO:
+      required:
+      - employmentTypeId
+      - loanApplicationId
+      - partyId
+      - roleCodeId
+      type: object
+      properties:
+        applicationPartyId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        partyId:
+          type: string
+          format: uuid
+        roleCodeId:
+          type: string
+          format: uuid
+        sharePercentage:
+          type: number
+        annualIncome:
+          type: number
+        monthlyExpenses:
+          type: number
+        employmentTypeId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PaginationResponseApplicationPartyDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationPartyDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+    PaginationResponseProposedOfferDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProposedOfferDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+    ProposedOfferDTO:
+      required:
+      - loanApplicationId
+      - productId
+      - requestedAmount
+      - requestedInterestRate
+      - requestedTenorMonths
+      type: object
+      properties:
+        proposedOfferId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        requestedAmount:
+          type: number
+        requestedTenorMonths:
+          type: integer
+          format: int32
+        requestedInterestRate:
+          type: number
+        validUntil:
+          type: string
+          format: date
+        offerStatus:
+          type: string
+        acceptedAt:
+          type: string
+          format: date-time
+        acceptedBy:
+          type: string
+          format: uuid
+        rejectionReason:
+          type: string
+        monthlyPayment:
+          type: number
+        totalInterest:
+          type: number
+        totalAmount:
+          type: number
+        apr:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ApplicationFeeDTO:
+      required:
+      - feeType
+      - loanApplicationId
+      type: object
+      properties:
+        feeId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        feeType:
+          type: string
+        feeName:
+          type: string
+        feeAmount:
+          type: number
+        feePercentage:
+          type: number
+        isRefundable:
+          type: boolean
+        isFinanced:
+          type: boolean
+        paymentStatus:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+        waivedReason:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PaginationResponseApplicationFeeDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationFeeDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+    ApplicationDocumentDTO:
+      required:
+      - documentId
+      - documentTypeId
+      - isMandatory
+      - isReceived
+      - loanApplicationId
+      type: object
+      properties:
+        applicationDocumentId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        documentId:
+          type: string
+          format: uuid
+        documentTypeId:
+          type: string
+          format: uuid
+        isMandatory:
+          type: boolean
+        isReceived:
+          type: boolean
+        receivedAt:
+          type: string
+          format: date-time
+        documentName:
+          type: string
+        fileSizeBytes:
+          type: integer
+          format: int64
+        mimeType:
+          type: string
+        verificationStatus:
+          type: string
+        verifiedBy:
+          type: string
+          format: uuid
+        verifiedAt:
+          type: string
+          format: date-time
+        rejectionReason:
+          type: string
+        expiryDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PaginationResponseApplicationDocumentDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationDocumentDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+    LoanApplicationDTO:
+      required:
+      - applicationDate
+      - applicationStatusId
+      - applicationSubStatusId
+      - submissionChannelId
+      type: object
+      properties:
+        loanApplicationId:
+          type: string
+          format: uuid
+        applicationNumber:
+          type: string
+          format: uuid
+        applicationStatusId:
+          type: string
+          format: uuid
+        applicationSubStatusId:
+          type: string
+          format: uuid
+        applicationDate:
+          type: string
+          format: date
+        submissionChannelId:
+          type: string
+          format: uuid
+        distributorId:
+          type: string
+          format: uuid
+        distributorAgencyId:
+          type: string
+          format: uuid
+        distributorAgentId:
+          type: string
+          format: uuid
+        businessUnit:
+          type: string
+        branchId:
+          type: string
+          format: uuid
+        loanPurpose:
+          type: string
+        loanPurposeDescription:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+        firstReviewAt:
+          type: string
+          format: date-time
+        decisionDueDate:
+          type: string
+          format: date
+        expectedClosingDate:
+          type: string
+          format: date
+        loanOfficerId:
+          type: string
+          format: uuid
+        assignedAt:
+          type: string
+          format: date-time
+        isRush:
+          type: boolean
+        isException:
+          type: boolean
+        requiresManualReview:
+          type: boolean
+        externalReferenceNumber:
+          type: string
+        sourceSystem:
+          type: string
+        disbursementMethodType:
+          type: string
+          enum:
+          - INTERNAL_ACCOUNT
+          - EXTERNAL_ACCOUNT
+        disbursementInternalAccountId:
+          type: string
+          format: uuid
+        disbursementExternalBankAccountId:
+          type: string
+          format: uuid
+        paymentCollectionMethodType:
+          type: string
+          enum:
+          - INTERNAL_ACCOUNT
+          - EXTERNAL_ACCOUNT
+        paymentCollectionInternalAccountId:
+          type: string
+          format: uuid
+        paymentCollectionExternalBankAccountId:
+          type: string
+          format: uuid
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PaginationResponseUnderwritingDecisionDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/UnderwritingDecisionDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+    UnderwritingDecisionDTO:
+      required:
+      - decisionCodeId
+      - decisionDate
+      - loanApplicationId
+      type: object
+      properties:
+        underwritingDecisionId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        decisionDate:
+          type: string
+          format: date-time
+        decisionCodeId:
+          type: string
+          format: uuid
+        approvedAmount:
+          type: number
+        approvedInterestRate:
+          type: number
+        tenorMonths:
+          type: integer
+          format: int32
+        riskGradeId:
+          type: string
+          format: uuid
+        remarks:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ApplicationConditionDTO:
+      required:
+      - conditionType
+      - loanApplicationId
+      type: object
+      properties:
+        conditionId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        conditionType:
+          type: string
+        conditionCategory:
+          type: string
+        description:
+          type: string
+        isMandatory:
+          type: boolean
+        status:
+          type: string
+        dueDate:
+          type: string
+          format: date
+        satisfiedDate:
+          type: string
+          format: date-time
+        satisfiedBy:
+          type: string
+        waivedReason:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PaginationResponseApplicationConditionDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationConditionDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+    ApplicationExternalBankAccountDTO:
+      required:
+      - accountHolderName
+      - accountNumber
+      - accountUsageType
+      - bankName
+      - loanApplicationId
+      type: object
+      properties:
+        externalBankAccountId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        accountUsageType:
+          type: string
+          enum:
+          - DISBURSEMENT
+          - PAYMENT_COLLECTION
+          - BOTH
+        accountHolderName:
+          type: string
+        bankName:
+          type: string
+        bankCode:
+          type: string
+        branchCode:
+          type: string
+        accountNumber:
+          type: string
+        accountType:
+          type: string
+        currencyCode:
+          type: string
+        iban:
+          type: string
+        routingNumber:
+          type: string
+        isVerified:
+          type: boolean
+        verificationMethod:
+          type: string
+        verifiedAt:
+          type: string
+          format: date-time
+        isPrimary:
+          type: boolean
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PaginationResponseApplicationExternalBankAccountDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationExternalBankAccountDTO"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
