@@ -46,7 +46,7 @@ server:
 # Clients basePath
 api-configuration:
   core-lending.loan-origination:
-    base-path: http://localhost:8082
+    base-path: ${ENDPOINT_CORE_LENDING_LOAN_ORIGINATION:http://localhost:8082}
 
 springdoc:
   api-docs:
