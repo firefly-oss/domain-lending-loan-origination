@@ -86,4 +86,14 @@ public class ClientFactory {
     public ApplicationExternalBankAccountsApi applicationExternalBankAccountsApi() {
         return new ApplicationExternalBankAccountsApi(apiClient);
     }
+
+    @Bean
+    public SimulationApi simulationApi() {
+        return new SimulationApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationPartyEmploymentApi applicationPartyEmploymentApi() {
+        return new ApplicationPartyEmploymentApi(apiClient);
+    }
 }

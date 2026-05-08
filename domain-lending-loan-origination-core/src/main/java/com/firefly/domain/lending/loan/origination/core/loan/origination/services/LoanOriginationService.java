@@ -1,7 +1,11 @@
 package com.firefly.domain.lending.loan.origination.core.loan.origination.services;
 
+import com.firefly.core.lending.origination.sdk.model.ApplicationPartyDTO;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
+import com.firefly.core.lending.origination.sdk.model.SimulationDTO;
+import com.firefly.domain.lending.loan.origination.core.applicationparty.commands.UpdateApplicationEmploymentDataCommand;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.*;
+import com.firefly.domain.lending.loan.origination.core.simulation.commands.PersistSimulationCommand;
 import org.fireflyframework.orchestration.saga.engine.SagaResult;
 import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
@@ -59,4 +63,25 @@ public interface LoanOriginationService {
      * @return a {@code Mono} emitting the loan application details, or empty if not found
      */
     Mono<LoanApplicationDTO> getApplication(UUID appId);
+
+    /**
+     * Persists a pre-computed loan simulation through the core lending
+     * loan-origination service.
+     *
+     * @param cmd command carrying the simulation fields (product, term,
+     *            requested amount, monthly payment, TIN/TAE, etc.)
+     * @return a {@code Mono} emitting the persisted {@link SimulationDTO}
+     *         (including the generated simulation identifier)
+     */
+    Mono<SimulationDTO> persistSimulation(@Valid PersistSimulationCommand cmd);
+
+    /**
+     * Updates the economic / employment data of the primary application party
+     * associated with the given loan application.
+     *
+     * @param cmd command carrying the loan application identifier and the
+     *            12 economic fields supported by the SDK patch payload
+     * @return a {@code Mono} emitting the updated {@link ApplicationPartyDTO}
+     */
+    Mono<ApplicationPartyDTO> updateApplicationEmploymentData(@Valid UpdateApplicationEmploymentDataCommand cmd);
 }

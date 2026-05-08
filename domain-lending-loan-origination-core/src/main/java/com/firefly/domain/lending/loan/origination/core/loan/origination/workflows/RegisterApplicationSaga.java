@@ -12,6 +12,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+import static com.firefly.domain.lending.loan.origination.core.loan.utils.constants.ApplicationLookupDefaults.DEFAULT_APPLICATION_STATUS_ID;
+import static com.firefly.domain.lending.loan.origination.core.loan.utils.constants.ApplicationLookupDefaults.DEFAULT_APPLICATION_SUB_STATUS_ID;
+import static com.firefly.domain.lending.loan.origination.core.loan.utils.constants.ApplicationLookupDefaults.DEFAULT_SUBMISSION_CHANNEL_ID;
 import static com.firefly.domain.lending.loan.origination.core.loan.utils.constants.GlobalConstants.CTX_LOAN_APPLICATION_ID;
 import static com.firefly.domain.lending.loan.origination.core.loan.utils.constants.RegisterApplicationConstants.*;
 
@@ -30,8 +33,33 @@ public class RegisterApplicationSaga {
     @SagaStep(id = STEP_REGISTER_LOAN_APPLICATION, compensate = COMPENSATE_REMOVE_LOAN_APPLICATION)
     @StepEvent(type = EVENT_LOAN_APPLICATION_REGISTERED)
     public Mono<UUID> registerLoanApplication(RegisterLoanApplicationCommand cmd, ExecutionContext ctx) {
+        applyLookupDefaults(cmd);
         return commandBus.send(cmd)
                 .doOnNext(loanApplicationId -> ctx.putVariable(CTX_LOAN_APPLICATION_ID, loanApplicationId));
+    }
+
+    /**
+     * Populates the three FK columns enforced as {@code @NotNull} by the core
+     * {@code LoanApplicationDTO} when the upstream caller (typically the
+     * experience BFF) has not supplied them. Without this step the core service
+     * rejects the request with HTTP 400 and the saga aborts.
+     *
+     * <p>Existing non-null values are preserved verbatim, so a caller that does
+     * pass concrete IDs (e.g., a branch-channel use case) is unaffected.
+     */
+    private static void applyLookupDefaults(RegisterLoanApplicationCommand cmd) {
+        if (cmd == null) {
+            return;
+        }
+        if (cmd.getApplicationStatusId() == null) {
+            cmd.setApplicationStatusId(DEFAULT_APPLICATION_STATUS_ID);
+        }
+        if (cmd.getApplicationSubStatusId() == null) {
+            cmd.setApplicationSubStatusId(DEFAULT_APPLICATION_SUB_STATUS_ID);
+        }
+        if (cmd.getSubmissionChannelId() == null) {
+            cmd.setSubmissionChannelId(DEFAULT_SUBMISSION_CHANNEL_ID);
+        }
     }
 
     public Mono<Void> removeLoanApplication(UUID loanApplicationId) {

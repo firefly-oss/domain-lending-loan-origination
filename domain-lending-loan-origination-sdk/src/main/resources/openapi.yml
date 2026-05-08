@@ -191,6 +191,88 @@ paths:
             '*/*':
               schema:
                 type: object
+  /api/v1/loan-applications/simulations:
+    post:
+      tags:
+      - Loan Origination
+      summary: Persist a pre-computed simulation
+      description: Persists a pre-computed loan simulation through the core lending
+        loan-origination service.
+      operationId: persistLendingSimulation
+      parameters:
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PersistSimulationCommand"
+        required: true
+      responses:
+        "201":
+          description: Simulation persisted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SimulationDTO"
+        "400":
+          description: Invalid simulation payload
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SimulationDTO"
+  /api/v1/loan-applications/{applicationId}/employment-data:
+    patch:
+      tags:
+      - Loan Origination
+      summary: Update primary applicant employment data
+      description: Updates the economic / employment data of the primary application
+        party associated with the loan application.
+      operationId: updateApplicationEmploymentData
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmploymentDataPatchRequest"
+        required: true
+      responses:
+        "200":
+          description: Employment data updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApplicationPartyDTO"
+        "400":
+          description: Invalid employment data payload
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApplicationPartyDTO"
+        "404":
+          description: Application or primary application party not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApplicationPartyDTO"
   /api/v1/loan-origination/applications/{applicationId}/verifications:
     get:
       tags:
@@ -574,6 +656,36 @@ components:
         employmentTypeId:
           type: string
           format: uuid
+        employmentStatus:
+          type: string
+        employmentTypeLabel:
+          type: string
+        employer:
+          type: string
+        position:
+          type: string
+        employmentStartDate:
+          type: string
+          format: date
+        annualPaydays:
+          type: integer
+          format: int32
+        monthlySalary:
+          type: number
+        housingType:
+          type: string
+        housingCost:
+          type: number
+        housingStartDate:
+          type: string
+          format: date
+        existingLoans:
+          type: integer
+          format: int32
+        otherDebts:
+          type: number
+        isPrimary:
+          type: boolean
         createdAt:
           type: string
           format: date-time
@@ -676,6 +788,9 @@ components:
           format: uuid
         note:
           type: string
+        simulationId:
+          type: string
+          format: uuid
         createdAt:
           type: string
           format: date-time
@@ -871,6 +986,199 @@ components:
           $ref: "#/components/schemas/RegisterUnderwritingScoreCommand"
         decision:
           $ref: "#/components/schemas/RegisterUnderwritingDecisionCommand"
+    PersistSimulationCommand:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        productType:
+          type: string
+        requestedAmount:
+          type: number
+        term:
+          type: integer
+          format: int32
+        purpose:
+          type: string
+        sector:
+          type: string
+        assetType:
+          type: string
+        monthlyPayment:
+          type: number
+        tin:
+          type: number
+        tae:
+          type: number
+        totalAmount:
+          type: number
+        currency:
+          type: string
+    SimulationDTO:
+      required:
+      - productType
+      - requestedAmount
+      - term
+      type: object
+      properties:
+        simulationId:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        productType:
+          type: string
+        requestedAmount:
+          type: number
+        term:
+          type: integer
+          format: int32
+        purpose:
+          type: string
+        sector:
+          type: string
+        assetType:
+          type: string
+        monthlyPayment:
+          type: number
+        tin:
+          type: number
+        tae:
+          type: number
+        totalAmount:
+          type: number
+        currency:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    EmploymentDataPatchRequest:
+      type: object
+      properties:
+        employmentStatus:
+          type: string
+          description: "Employment status code (e.g. EMPLOYED, SELF_EMPLOYED, RETIRED)."
+          example: EMPLOYED
+        employmentTypeLabel:
+          type: string
+          description: Free-text employment type label.
+          example: Permanent contract
+        employer:
+          type: string
+          description: Employer legal or commercial name.
+          example: ACME Corp
+        position:
+          type: string
+          description: Job position or role.
+          example: Software Engineer
+        employmentStartDate:
+          type: string
+          description: Employment start date.
+          format: date
+          example: 2020-04-15
+        annualPaydays:
+          type: integer
+          description: Number of paydays per year.
+          format: int32
+          example: 14
+        monthlySalary:
+          type: number
+          description: Net monthly salary.
+          example: 2500.0
+        housingType:
+          type: string
+          description: "Housing tenure type (e.g. OWNED, RENTED, MORTGAGED)."
+          example: RENTED
+        housingCost:
+          type: number
+          description: Monthly housing cost (rent or mortgage payment).
+          example: 850.0
+        housingStartDate:
+          type: string
+          description: Date the current housing arrangement started.
+          format: date
+          example: 2018-09-01
+        existingLoans:
+          type: integer
+          description: Number of currently active loans of the applicant.
+          format: int32
+          example: 1
+        otherDebts:
+          type: number
+          description: Total monthly payment of other debts (excluding housing).
+          example: 150.0
+      description: Patch payload with the economic / employment data of the primary
+        application party.
+    ApplicationPartyDTO:
+      required:
+      - employmentTypeId
+      - loanApplicationId
+      - partyId
+      - roleCodeId
+      type: object
+      properties:
+        applicationPartyId:
+          type: string
+          format: uuid
+        loanApplicationId:
+          type: string
+          format: uuid
+        partyId:
+          type: string
+          format: uuid
+        roleCodeId:
+          type: string
+          format: uuid
+        sharePercentage:
+          type: number
+        annualIncome:
+          type: number
+        monthlyExpenses:
+          type: number
+        employmentTypeId:
+          type: string
+          format: uuid
+        employmentStatus:
+          type: string
+        employmentTypeLabel:
+          type: string
+        employer:
+          type: string
+        position:
+          type: string
+        employmentStartDate:
+          type: string
+          format: date
+        annualPaydays:
+          type: integer
+          format: int32
+        monthlySalary:
+          type: number
+        housingType:
+          type: string
+        housingCost:
+          type: number
+        housingStartDate:
+          type: string
+          format: date
+        existingLoans:
+          type: integer
+          format: int32
+        otherDebts:
+          type: number
+        isPrimary:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     ApplicationVerificationDTO:
       required:
       - loanApplicationId
@@ -978,41 +1286,6 @@ components:
         currentPage:
           type: integer
           format: int32
-    ApplicationPartyDTO:
-      required:
-      - employmentTypeId
-      - loanApplicationId
-      - partyId
-      - roleCodeId
-      type: object
-      properties:
-        applicationPartyId:
-          type: string
-          format: uuid
-        loanApplicationId:
-          type: string
-          format: uuid
-        partyId:
-          type: string
-          format: uuid
-        roleCodeId:
-          type: string
-          format: uuid
-        sharePercentage:
-          type: number
-        annualIncome:
-          type: number
-        monthlyExpenses:
-          type: number
-        employmentTypeId:
-          type: string
-          format: uuid
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
     PaginationResponseApplicationPartyDTO:
       type: object
       properties:
@@ -1316,6 +1589,9 @@ components:
           format: uuid
         note:
           type: string
+        simulationId:
+          type: string
+          format: uuid
         createdAt:
           type: string
           format: date-time
