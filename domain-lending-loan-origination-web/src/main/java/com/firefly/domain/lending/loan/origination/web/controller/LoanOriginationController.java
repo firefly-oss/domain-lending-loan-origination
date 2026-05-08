@@ -1,14 +1,21 @@
 package com.firefly.domain.lending.loan.origination.web.controller;
 
+import com.firefly.core.lending.origination.sdk.model.ApplicationPartyDTO;
 import com.firefly.core.lending.origination.sdk.model.LoanApplicationDTO;
+import com.firefly.core.lending.origination.sdk.model.SimulationDTO;
+import com.firefly.domain.lending.loan.origination.core.applicationparty.commands.UpdateApplicationEmploymentDataCommand;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.commands.*;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetApplicationStatusQuery;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.services.LoanOriginationService;
+import com.firefly.domain.lending.loan.origination.core.simulation.commands.PersistSimulationCommand;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -101,5 +108,40 @@ public class LoanOriginationController {
         return loanOriginationService.getApplication(appId)
                 .map(ResponseEntity::ok)
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+    }
+
+    @Operation(
+            operationId = "persistLendingSimulation",
+            summary = "Persist a pre-computed simulation",
+            description = "Persists a pre-computed loan simulation through the core lending loan-origination service."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Simulation persisted successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid simulation payload")
+    })
+    @PostMapping("/simulations")
+    public Mono<ResponseEntity<SimulationDTO>> persistLendingSimulation(
+            @Valid @RequestBody PersistSimulationCommand command) {
+        return loanOriginationService.persistSimulation(command)
+                .map(simulation -> ResponseEntity.status(HttpStatus.CREATED).body(simulation));
+    }
+
+    @Operation(
+            operationId = "updateApplicationEmploymentData",
+            summary = "Update primary applicant employment data",
+            description = "Updates the economic / employment data of the primary application party associated with the loan application."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Employment data updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid employment data payload"),
+            @ApiResponse(responseCode = "404", description = "Application or primary application party not found")
+    })
+    @PatchMapping("/{applicationId}/employment-data")
+    public Mono<ResponseEntity<ApplicationPartyDTO>> updateApplicationEmploymentData(
+            @PathVariable UUID applicationId,
+            @Valid @RequestBody UpdateApplicationEmploymentDataCommand command) {
+        command.setApplicationId(applicationId);
+        return loanOriginationService.updateApplicationEmploymentData(command)
+                .map(ResponseEntity::ok);
     }
 }
