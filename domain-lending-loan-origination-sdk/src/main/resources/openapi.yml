@@ -252,7 +252,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/EmploymentDataPatchRequest"
+              $ref: "#/components/schemas/UpdateApplicationEmploymentDataCommand"
         required: true
       responses:
         "200":
@@ -1057,63 +1057,40 @@ components:
         updatedAt:
           type: string
           format: date-time
-    EmploymentDataPatchRequest:
+    UpdateApplicationEmploymentDataCommand:
       type: object
       properties:
+        applicationId:
+          type: string
+          format: uuid
         employmentStatus:
           type: string
-          description: "Employment status code (e.g. EMPLOYED, SELF_EMPLOYED, RETIRED)."
-          example: EMPLOYED
         employmentTypeLabel:
           type: string
-          description: Free-text employment type label.
-          example: Permanent contract
         employer:
           type: string
-          description: Employer legal or commercial name.
-          example: ACME Corp
         position:
           type: string
-          description: Job position or role.
-          example: Software Engineer
         employmentStartDate:
           type: string
-          description: Employment start date.
           format: date
-          example: 2020-04-15
         annualPaydays:
           type: integer
-          description: Number of paydays per year.
           format: int32
-          example: 14
         monthlySalary:
           type: number
-          description: Net monthly salary.
-          example: 2500.0
         housingType:
           type: string
-          description: "Housing tenure type (e.g. OWNED, RENTED, MORTGAGED)."
-          example: RENTED
         housingCost:
           type: number
-          description: Monthly housing cost (rent or mortgage payment).
-          example: 850.0
         housingStartDate:
           type: string
-          description: Date the current housing arrangement started.
           format: date
-          example: 2018-09-01
         existingLoans:
           type: integer
-          description: Number of currently active loans of the applicant.
           format: int32
-          example: 1
         otherDebts:
           type: number
-          description: Total monthly payment of other debts (excluding housing).
-          example: 150.0
-      description: Patch payload with the economic / employment data of the primary
-        application party.
     ApplicationPartyDTO:
       required:
       - employmentTypeId
