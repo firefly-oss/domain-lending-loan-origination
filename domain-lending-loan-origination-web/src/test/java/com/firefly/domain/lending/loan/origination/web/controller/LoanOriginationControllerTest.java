@@ -21,7 +21,6 @@ import com.firefly.core.lending.origination.sdk.model.SimulationDTO;
 import com.firefly.domain.lending.loan.origination.core.applicationparty.commands.UpdateApplicationEmploymentDataCommand;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.services.LoanOriginationService;
 import com.firefly.domain.lending.loan.origination.core.simulation.commands.PersistSimulationCommand;
-import com.firefly.domain.lending.loan.origination.web.dto.EmploymentDataPatchRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -111,8 +110,8 @@ class LoanOriginationControllerTest {
     // -----------------------------------------------------------------------
 
     @Test
-    void updateApplicationEmploymentData_returnsOkAndMapsBodyOntoCommand() {
-        EmploymentDataPatchRequest request = EmploymentDataPatchRequest.builder()
+    void updateApplicationEmploymentData_returnsOkAndStampsApplicationIdOnCommand() {
+        UpdateApplicationEmploymentDataCommand command = UpdateApplicationEmploymentDataCommand.builder()
                 .employmentStatus("EMPLOYED")
                 .employmentTypeLabel("Permanent contract")
                 .employer("ACME Corp")
@@ -132,7 +131,7 @@ class LoanOriginationControllerTest {
                 any(UpdateApplicationEmploymentDataCommand.class)))
                 .thenReturn(Mono.just(dto));
 
-        StepVerifier.create(controller.updateApplicationEmploymentData(applicationId, request))
+        StepVerifier.create(controller.updateApplicationEmploymentData(applicationId, command))
                 .expectNextMatches(response -> response.getStatusCode() == HttpStatus.OK
                         && response.getBody() == dto)
                 .verifyComplete();
@@ -158,7 +157,7 @@ class LoanOriginationControllerTest {
 
     @Test
     void updateApplicationEmploymentData_propagatesServiceError() {
-        EmploymentDataPatchRequest request = EmploymentDataPatchRequest.builder()
+        UpdateApplicationEmploymentDataCommand command = UpdateApplicationEmploymentDataCommand.builder()
                 .employmentStatus("EMPLOYED")
                 .build();
 
@@ -168,7 +167,7 @@ class LoanOriginationControllerTest {
                 any(UpdateApplicationEmploymentDataCommand.class)))
                 .thenReturn(Mono.error(expected));
 
-        StepVerifier.create(controller.updateApplicationEmploymentData(applicationId, request))
+        StepVerifier.create(controller.updateApplicationEmploymentData(applicationId, command))
                 .expectErrorMatches(ex -> ex == expected)
                 .verify();
     }

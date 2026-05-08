@@ -9,7 +9,6 @@ import com.firefly.domain.lending.loan.origination.core.loan.origination.queries
 import com.firefly.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;
 import com.firefly.domain.lending.loan.origination.core.loan.origination.services.LoanOriginationService;
 import com.firefly.domain.lending.loan.origination.core.simulation.commands.PersistSimulationCommand;
-import com.firefly.domain.lending.loan.origination.web.dto.EmploymentDataPatchRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -140,22 +139,8 @@ public class LoanOriginationController {
     @PatchMapping("/{applicationId}/employment-data")
     public Mono<ResponseEntity<ApplicationPartyDTO>> updateApplicationEmploymentData(
             @PathVariable UUID applicationId,
-            @Valid @RequestBody EmploymentDataPatchRequest request) {
-        UpdateApplicationEmploymentDataCommand command = UpdateApplicationEmploymentDataCommand.builder()
-                .applicationId(applicationId)
-                .employmentStatus(request.getEmploymentStatus())
-                .employmentTypeLabel(request.getEmploymentTypeLabel())
-                .employer(request.getEmployer())
-                .position(request.getPosition())
-                .employmentStartDate(request.getEmploymentStartDate())
-                .annualPaydays(request.getAnnualPaydays())
-                .monthlySalary(request.getMonthlySalary())
-                .housingType(request.getHousingType())
-                .housingCost(request.getHousingCost())
-                .housingStartDate(request.getHousingStartDate())
-                .existingLoans(request.getExistingLoans())
-                .otherDebts(request.getOtherDebts())
-                .build();
+            @Valid @RequestBody UpdateApplicationEmploymentDataCommand command) {
+        command.setApplicationId(applicationId);
         return loanOriginationService.updateApplicationEmploymentData(command)
                 .map(ResponseEntity::ok);
     }
