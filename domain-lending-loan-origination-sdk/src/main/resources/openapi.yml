@@ -37,6 +37,9 @@ paths:
             '*/*':
               schema:
                 type: object
+                additionalProperties:
+                  type: string
+                  format: uuid
   /api/v1/loan-applications/{appId}/withdraw:
     post:
       tags:

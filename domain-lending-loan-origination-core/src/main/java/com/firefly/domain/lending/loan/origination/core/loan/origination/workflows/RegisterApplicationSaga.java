@@ -109,21 +109,37 @@ public class RegisterApplicationSaga {
 
     @SagaStep(id = STEP_REGISTER_SCORE, compensate = COMPENSATE_REMOVE_SCORE, dependsOn = STEP_REGISTER_LOAN_APPLICATION)
     @StepEvent(type = EVENT_SCORE_REGISTERED)
-    public Mono<UUID> registerScore(RegisterUnderwritingScoreCommand cmd, ExecutionContext ctx) {
-        return commandBus.send(cmd.withLoanApplicationId(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class)));
+    public Mono<Object> registerScore(RegisterUnderwritingScoreCommand cmd, ExecutionContext ctx) {
+        // Underwriting score is optional at intake; skip cleanly when caller did not supply one.
+        if (cmd == null) {
+            return Mono.just("skipped");
+        }
+        return commandBus.send(cmd.withLoanApplicationId(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class)))
+                .cast(Object.class);
     }
 
     public Mono<Void> removeScore(UUID underwritingScoreId, ExecutionContext ctx) {
+        if (underwritingScoreId == null) {
+            return Mono.empty();
+        }
         return commandBus.send(new RemoveUnderwritingScoreCommand(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class), underwritingScoreId));
     }
 
     @SagaStep(id = STEP_REGISTER_DECISION, compensate = COMPENSATE_REMOVE_DECISION, dependsOn = STEP_REGISTER_LOAN_APPLICATION)
     @StepEvent(type = EVENT_DECISION_REGISTERED)
-    public Mono<UUID> registerDecision(RegisterUnderwritingDecisionCommand cmd, ExecutionContext ctx) {
-        return commandBus.send(cmd.withLoanApplicationId(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class)));
+    public Mono<Object> registerDecision(RegisterUnderwritingDecisionCommand cmd, ExecutionContext ctx) {
+        // Underwriting decision is optional at intake; skip cleanly when caller did not supply one.
+        if (cmd == null) {
+            return Mono.just("skipped");
+        }
+        return commandBus.send(cmd.withLoanApplicationId(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class)))
+                .cast(Object.class);
     }
 
     public Mono<Void> removeDecision(UUID underwritingDecisionId, ExecutionContext ctx) {
+        if (underwritingDecisionId == null) {
+            return Mono.empty();
+        }
         return commandBus.send(new RemoveUnderwritingDecisionCommand(ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class), underwritingDecisionId));
     }
 

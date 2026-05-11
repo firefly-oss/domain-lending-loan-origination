@@ -20,7 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.UUID;
+
+import static com.firefly.domain.lending.loan.origination.core.loan.utils.constants.RegisterApplicationConstants.STEP_REGISTER_LOAN_APPLICATION;
 
 @RestController
 @RequestMapping("/api/v1/loan-applications")
@@ -32,9 +35,19 @@ public class LoanOriginationController {
 
     @Operation(summary = "Submit application", description = "Submit an application with product, amount, currency, and channel.")
     @PostMapping
-    public Mono<ResponseEntity<Object>> submitApplication(@Valid @RequestBody SubmitApplicationCommand command) {
+    public Mono<ResponseEntity<Map<String, UUID>>> submitApplication(@Valid @RequestBody SubmitApplicationCommand command) {
         return loanOriginationService.submitApplication(command)
-                .thenReturn(ResponseEntity.ok().build());
+                .map(result -> {
+                    if (!result.isSuccess()) {
+                        throw new IllegalStateException(
+                                "RegisterApplicationSaga failed at step: "
+                                        + result.firstErrorStepId().orElse("unknown"));
+                    }
+                    UUID id = result.resultOf(STEP_REGISTER_LOAN_APPLICATION, UUID.class)
+                            .orElseThrow(() -> new IllegalStateException(
+                                    "RegisterApplicationSaga completed without a loanApplicationId result"));
+                    return ResponseEntity.ok(Map.of("loanApplicationId", id));
+                });
     }
 
     @Operation(summary = "Attach documents", description = "Attach supporting documents including income, statements, and collateral.")
