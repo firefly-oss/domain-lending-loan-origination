@@ -28,6 +28,15 @@ import java.util.UUID;
 public class RegisterApplicationDocumentCommand extends ApplicationDocumentDTO implements Command<UUID> {
     private UUID loanApplicationId;
 
+    /**
+     * Stable lookup code for document_type (e.g. PAYSLIP, ID_DOCUMENT, BANK_STATEMENT).
+     * When the upstream caller supplies this code instead of the FK UUID, the
+     * domain handler resolves it via the core DocumentTypeApi and falls back to
+     * OTHER when the code is unknown. Mirrors the field of the same name on the
+     * generated SDK request schema.
+     */
+    private String documentTypeCode;
+
     public RegisterApplicationDocumentCommand withLoanApplicationId(UUID loanApplicationId) {
         this.loanApplicationId = loanApplicationId;
         return this;

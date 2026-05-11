@@ -28,6 +28,11 @@ public class ClientFactory {
     }
 
     @Bean
+    public DocumentTypeApi documentTypeApi() {
+        return new DocumentTypeApi(apiClient);
+    }
+
+    @Bean
     public ApplicationPartyApi applicationPartyApi() {
         return new ApplicationPartyApi(apiClient);
     }

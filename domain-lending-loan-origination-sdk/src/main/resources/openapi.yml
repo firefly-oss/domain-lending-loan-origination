@@ -666,6 +666,8 @@ components:
         updatedAt:
           type: string
           format: date-time
+        documentTypeCode:
+          type: string
     RegisterApplicationPartyCommand:
       required:
       - employmentTypeId
