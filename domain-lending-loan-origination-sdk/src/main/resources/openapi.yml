@@ -165,6 +165,9 @@ paths:
             '*/*':
               schema:
                 type: object
+                additionalProperties:
+                  type: string
+                  format: uuid
   /api/v1/loan-applications/{appId}/approve:
     post:
       tags:
@@ -438,6 +441,39 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PaginationResponseApplicationDocumentDTO"
+  /api/v1/loan-origination/applications/{applicationId}/documents/{documentId}:
+    get:
+      tags:
+      - Loan Origination
+      summary: Get application document by id
+      operationId: getApplicationDocumentById
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        description: "Unique key for idempotent requests. If provided, ensures that\
+          \ identical requests with the same key will only be processed once."
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Application document retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApplicationDocumentDTO"
   /api/v1/loan-origination/applications/{applicationId}/detail:
     get:
       tags:

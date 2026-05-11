@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.firefly.domain.lending.loan.origination.core.loan.utils.constants.RegisterApplicationConstants.STEP_REGISTER_APPLICATION_DOCUMENT;
 import static com.firefly.domain.lending.loan.origination.core.loan.utils.constants.RegisterApplicationConstants.STEP_REGISTER_LOAN_APPLICATION;
 
 @RestController
@@ -52,9 +53,19 @@ public class LoanOriginationController {
 
     @Operation(summary = "Attach documents", description = "Attach supporting documents including income, statements, and collateral.")
     @PostMapping("/{appId}/documents")
-    public Mono<ResponseEntity<Object>> attachDocuments(@PathVariable UUID appId, @Valid @RequestBody RegisterApplicationDocumentCommand command) {
+    public Mono<ResponseEntity<Map<String, UUID>>> attachDocuments(@PathVariable UUID appId, @Valid @RequestBody RegisterApplicationDocumentCommand command) {
         return loanOriginationService.attachDocuments(appId, command)
-                .thenReturn(ResponseEntity.ok().build());
+                .map(result -> {
+                    if (!result.isSuccess()) {
+                        throw new IllegalStateException(
+                                "RegisterApplicationDocumentSaga failed at step: "
+                                        + result.firstErrorStepId().orElse("unknown"));
+                    }
+                    UUID id = result.resultOf(STEP_REGISTER_APPLICATION_DOCUMENT, UUID.class)
+                            .orElseThrow(() -> new IllegalStateException(
+                                    "RegisterApplicationDocumentSaga completed without an applicationDocumentId result"));
+                    return ResponseEntity.ok(Map.of("applicationDocumentId", id));
+                });
     }
 
     @Operation(summary = "Withdraw application", description = "Withdraw the application by applicant request.")

@@ -92,6 +92,21 @@ public class LoanOriginationQueryController {
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
+    @Operation(summary = "Get application document by id")
+    @ApiResponse(responseCode = "200", description = "Application document retrieved successfully")
+    @GetMapping("/{applicationId}/documents/{documentId}")
+    public Mono<ResponseEntity<ApplicationDocumentDTO>> getApplicationDocumentById(
+            @PathVariable UUID applicationId,
+            @PathVariable UUID documentId) {
+        log.info("Fetching document {} for application {}", documentId, applicationId);
+        return queryBus.query(GetApplicationDocumentByIdQuery.builder()
+                        .applicationId(applicationId)
+                        .documentId(documentId)
+                        .build())
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+    }
+
     @Operation(summary = "Get application bank accounts")
     @ApiResponse(responseCode = "200", description = "Application bank accounts retrieved successfully")
     @GetMapping("/{applicationId}/bank-accounts")
