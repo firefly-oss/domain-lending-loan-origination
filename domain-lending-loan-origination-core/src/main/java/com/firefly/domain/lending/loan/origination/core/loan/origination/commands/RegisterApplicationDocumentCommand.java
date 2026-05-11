@@ -16,6 +16,7 @@
 
 package com.firefly.domain.lending.loan.origination.core.loan.origination.commands;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.fireflyframework.cqrs.command.Command;
 import com.firefly.core.lending.origination.sdk.model.ApplicationDocumentDTO;
 import lombok.Data;
@@ -34,7 +35,15 @@ public class RegisterApplicationDocumentCommand extends ApplicationDocumentDTO i
      * domain handler resolves it via the core DocumentTypeApi and falls back to
      * OTHER when the code is unknown. Mirrors the field of the same name on the
      * generated SDK request schema.
+     *
+     * <p>Marked as {@link JsonProperty.Access#WRITE_ONLY} so Jackson can read it
+     * from the inbound BFF body but never serializes it back out. This is
+     * essential when the handler subsequently forwards the (still-typed) command
+     * to core, because core's {@code ApplicationDocumentDTO} has no such field
+     * and core's idempotency filter rejects the request with HTTP 400 on any
+     * unknown JSON property.
      */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String documentTypeCode;
 
     public RegisterApplicationDocumentCommand withLoanApplicationId(UUID loanApplicationId) {
