@@ -5,6 +5,7 @@ import com.firefly.core.lending.origination.sdk.invoker.ApiClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * Default implementation of the ClientFactory interface.
@@ -13,12 +14,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClientFactory {
 
+    private static final int MAX_IN_MEMORY_SIZE = 20 * 1024 * 1024;
+
     private final ApiClient apiClient;
 
     @Autowired
     public ClientFactory(
             LoanOriginationProperties loanOriginationProperties) {
-        this.apiClient = new ApiClient();
+        WebClient webClient = ApiClient.buildWebClientBuilder()
+                .codecs(c -> c.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
+                .build();
+        this.apiClient = new ApiClient(webClient);
         this.apiClient.setBasePath(loanOriginationProperties.getBasePath());
     }
 
