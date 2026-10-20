@@ -1,0 +1,19 @@
+package io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.queries;
+
+import org.fireflyframework.cqrs.query.Query;
+import io.fireflysoftware.core.lending.origination.sdk.model.LoanApplicationDTO;
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.UUID;
+
+@Data
+@Builder
+public class GetLoanApplicationQuery implements Query<LoanApplicationDTO> {
+    private UUID loanApplicationId;
+
+    public GetLoanApplicationQuery withLoanApplicationId(UUID loanApplicationId) {
+        this.loanApplicationId = loanApplicationId;
+        return this;
+    }
+}

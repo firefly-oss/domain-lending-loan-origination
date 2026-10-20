@@ -1,0 +1,27 @@
+package io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.handlers;
+
+import org.fireflyframework.cqrs.annotations.QueryHandlerComponent;
+import org.fireflyframework.cqrs.query.QueryHandler;
+import io.fireflysoftware.core.lending.origination.sdk.api.ApplicationStatusApi;
+import io.fireflysoftware.core.lending.origination.sdk.model.ApplicationStatusDTO;
+import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.queries.GetApplicationStatusQuery;
+import reactor.core.publisher.Mono;
+import java.util.UUID;
+
+@QueryHandlerComponent(cacheable = false)
+public class GetApplicationStatusHandler extends QueryHandler<GetApplicationStatusQuery, ApplicationStatusDTO> {
+
+    private final ApplicationStatusApi applicationStatusApi;
+
+    public GetApplicationStatusHandler(ApplicationStatusApi applicationStatusApi) {
+        this.applicationStatusApi = applicationStatusApi;
+    }
+
+    @Override
+    protected Mono<ApplicationStatusDTO> doHandle(GetApplicationStatusQuery cmd) {
+        if(null!=cmd.getApplicationStatusId()){
+            return applicationStatusApi.getApplicationStatus(cmd.getApplicationStatusId(), UUID.randomUUID().toString());
+        }
+        return applicationStatusApi.getApplicationStatusByCode(cmd.getApplicationStatusCode(), UUID.randomUUID().toString());
+    }
+}

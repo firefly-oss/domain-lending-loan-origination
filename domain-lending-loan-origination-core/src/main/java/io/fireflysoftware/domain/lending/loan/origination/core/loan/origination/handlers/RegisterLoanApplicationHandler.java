@@ -1,0 +1,27 @@
+package io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.handlers;
+
+import org.fireflyframework.cqrs.annotations.CommandHandlerComponent;
+import org.fireflyframework.cqrs.command.CommandHandler;
+import io.fireflysoftware.core.lending.origination.sdk.api.LoanApplicationsApi;
+import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RegisterLoanApplicationCommand;
+import reactor.core.publisher.Mono;
+
+import java.util.Objects;
+import java.util.UUID;
+
+@CommandHandlerComponent
+public class RegisterLoanApplicationHandler extends CommandHandler<RegisterLoanApplicationCommand, UUID> {
+
+    private final LoanApplicationsApi loanApplicationsApi;
+
+    public RegisterLoanApplicationHandler(LoanApplicationsApi loanApplicationsApi) {
+        this.loanApplicationsApi = loanApplicationsApi;
+    }
+
+    @Override
+    protected Mono<UUID> doHandle(RegisterLoanApplicationCommand cmd) {
+        return loanApplicationsApi.createLoanApplication(cmd, UUID.randomUUID().toString())
+                .mapNotNull(naturalPersonDTO ->
+                        Objects.requireNonNull(Objects.requireNonNull(naturalPersonDTO)).getLoanApplicationId());
+    }
+}

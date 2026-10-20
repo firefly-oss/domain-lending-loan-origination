@@ -1,0 +1,110 @@
+package io.fireflysoftware.domain.lending.loan.origination.infra;
+
+import io.fireflysoftware.core.lending.origination.sdk.api.*;
+import io.fireflysoftware.core.lending.origination.sdk.invoker.ApiClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+
+/**
+ * Default implementation of the ClientFactory interface.
+ * Creates client service instances using the appropriate API clients and dependencies.
+ */
+@Component
+public class ClientFactory {
+
+    private static final int MAX_IN_MEMORY_SIZE = 20 * 1024 * 1024;
+
+    private final ApiClient apiClient;
+
+    @Autowired
+    public ClientFactory(
+            LoanOriginationProperties loanOriginationProperties) {
+        WebClient webClient = ApiClient.buildWebClientBuilder()
+                .codecs(c -> c.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
+                .build();
+        this.apiClient = new ApiClient(webClient);
+        this.apiClient.setBasePath(loanOriginationProperties.getBasePath());
+    }
+
+    @Bean
+    public ApplicationDocumentApi applicationDocumentApi() {
+        return new ApplicationDocumentApi(apiClient);
+    }
+
+    @Bean
+    public DocumentTypeApi documentTypeApi() {
+        return new DocumentTypeApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationPartyApi applicationPartyApi() {
+        return new ApplicationPartyApi(apiClient);
+    }
+
+    @Bean
+    public LoanApplicationsApi loanApplicationsApi() {
+        return new LoanApplicationsApi(apiClient);
+    }
+
+    @Bean
+    public ProposedOfferApi proposedOfferApi() {
+        return new ProposedOfferApi(apiClient);
+    }
+
+    @Bean
+    public LoanApplicationStatusHistoryApi loanApplicationStatusHistoryApi() {
+        return new LoanApplicationStatusHistoryApi(apiClient);
+    }
+
+    @Bean
+    public UnderwritingScoreApi underwritingScoreApi() {
+        return new UnderwritingScoreApi(apiClient);
+    }
+
+    @Bean
+    public UnderwritingDecisionApi underwritingDecisionApi() {
+        return new UnderwritingDecisionApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationStatusApi applicationStatusApi() {
+        return new ApplicationStatusApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationConditionApi applicationConditionApi() {
+        return new ApplicationConditionApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationFeeApi applicationFeeApi() {
+        return new ApplicationFeeApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationTaskApi applicationTaskApi() {
+        return new ApplicationTaskApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationVerificationApi applicationVerificationApi() {
+        return new ApplicationVerificationApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationExternalBankAccountsApi applicationExternalBankAccountsApi() {
+        return new ApplicationExternalBankAccountsApi(apiClient);
+    }
+
+    @Bean
+    public SimulationApi simulationApi() {
+        return new SimulationApi(apiClient);
+    }
+
+    @Bean
+    public ApplicationPartyEmploymentApi applicationPartyEmploymentApi() {
+        return new ApplicationPartyEmploymentApi(apiClient);
+    }
+}

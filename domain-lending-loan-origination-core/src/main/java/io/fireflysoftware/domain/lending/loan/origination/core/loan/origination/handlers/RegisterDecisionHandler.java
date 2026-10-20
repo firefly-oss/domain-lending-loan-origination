@@ -1,0 +1,27 @@
+package io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.handlers;
+
+import org.fireflyframework.cqrs.annotations.CommandHandlerComponent;
+import org.fireflyframework.cqrs.command.CommandHandler;
+import io.fireflysoftware.core.lending.origination.sdk.api.UnderwritingDecisionApi;
+import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RegisterUnderwritingDecisionCommand;
+import reactor.core.publisher.Mono;
+
+import java.util.Objects;
+import java.util.UUID;
+
+@CommandHandlerComponent
+public class RegisterDecisionHandler extends CommandHandler<RegisterUnderwritingDecisionCommand, UUID> {
+
+    private final UnderwritingDecisionApi underwritingDecisionApi;
+
+    public RegisterDecisionHandler(UnderwritingDecisionApi underwritingDecisionApi) {
+        this.underwritingDecisionApi = underwritingDecisionApi;
+    }
+
+    @Override
+    protected Mono<UUID> doHandle(RegisterUnderwritingDecisionCommand cmd) {
+        return underwritingDecisionApi.createDecision(cmd.getLoanApplicationId(), cmd, UUID.randomUUID().toString())
+                .mapNotNull(underwritingDecisionDTO ->
+                        Objects.requireNonNull(Objects.requireNonNull(underwritingDecisionDTO)).getUnderwritingDecisionId());
+    }
+}

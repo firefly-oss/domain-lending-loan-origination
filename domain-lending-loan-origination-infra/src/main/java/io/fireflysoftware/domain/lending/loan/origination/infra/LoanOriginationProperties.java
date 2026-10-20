@@ -1,0 +1,18 @@
+package io.fireflysoftware.domain.lending.loan.origination.infra;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Configuration properties.
+ * Maps the properties defined in application.yaml under api-configuration.
+ */
+@Configuration
+@ConfigurationProperties(prefix = "api-configuration.core-lending.loan-origination")
+@Data
+public class LoanOriginationProperties {
+
+    private String basePath;
+
+}
