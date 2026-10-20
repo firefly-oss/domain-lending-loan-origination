@@ -210,4 +210,4 @@ This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) fo
 
 - **Repository:** [https://github.com/firefly-oss/domain-lending-loan-origination](https://github.com/firefly-oss/domain-lending-loan-origination)
 - **FireflyFramework:** [https://github.com/fireflyframework/](https://github.com/fireflyframework/)
-- **Team Contact:** [dev@getfirefly.io](mailto:dev@getfirefly.io)
+- **Team Contact:** [dev@fireflysoftware.io](mailto:dev@fireflysoftware.io)

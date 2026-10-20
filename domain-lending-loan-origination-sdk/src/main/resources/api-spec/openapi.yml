@@ -5,13 +5,13 @@
     "description": "Lending Domain Loan Origination Layer Application",
     "contact": {
       "name": "Firefly Software Foundation",
-      "email": "dev@getfirefly.io"
+      "email": "dev@fireflysoftware.io"
     },
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://core.getfirefly.io/domain-lending-loan-origination",
+      "url": "https://openplatform.fireflysoftware.io/domain-lending-loan-origination",
       "description": "Development Environment"
     },
     {
