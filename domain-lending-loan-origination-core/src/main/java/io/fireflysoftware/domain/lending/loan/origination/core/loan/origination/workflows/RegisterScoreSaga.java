@@ -19,6 +19,7 @@ package io.fireflysoftware.domain.lending.loan.origination.core.loan.origination
 
 import org.fireflyframework.cqrs.command.CommandBus;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RegisterUnderwritingScoreCommand;
+import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RemoveUnderwritingScoreCommand;
 import org.fireflyframework.orchestration.saga.annotation.Saga;
 import org.fireflyframework.orchestration.saga.annotation.SagaStep;
 import org.fireflyframework.orchestration.saga.annotation.StepEvent;
@@ -43,9 +44,20 @@ public class RegisterScoreSaga {
         this.commandBus = commandBus;
     }
 
-    @SagaStep(id = STEP_REGISTER_SCORE)
+    @SagaStep(id = STEP_REGISTER_SCORE, compensate = COMPENSATE_REMOVE_SCORE)
     @StepEvent(type = EVENT_SCORE_REGISTERED)
     public Mono<UUID> registerScore(RegisterUnderwritingScoreCommand cmd, ExecutionContext ctx) {
+        if (cmd.getLoanApplicationId() != null) {
+            ctx.putVariable(CTX_LOAN_APPLICATION_ID, cmd.getLoanApplicationId());
+        }
         return commandBus.send(cmd);
+    }
+
+    public Mono<Void> removeScore(UUID underwritingScoreId, ExecutionContext ctx) {
+        UUID loanApplicationId = ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class);
+        if (underwritingScoreId == null || loanApplicationId == null) {
+            return Mono.empty();
+        }
+        return commandBus.send(new RemoveUnderwritingScoreCommand(loanApplicationId, underwritingScoreId));
     }
 }

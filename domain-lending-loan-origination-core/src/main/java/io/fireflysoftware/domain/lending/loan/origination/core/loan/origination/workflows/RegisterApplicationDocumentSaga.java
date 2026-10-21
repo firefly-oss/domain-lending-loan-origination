@@ -19,6 +19,7 @@ package io.fireflysoftware.domain.lending.loan.origination.core.loan.origination
 
 import org.fireflyframework.cqrs.command.CommandBus;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RegisterApplicationDocumentCommand;
+import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RemoveApplicationDocumentCommand;
 import org.fireflyframework.orchestration.saga.annotation.Saga;
 import org.fireflyframework.orchestration.saga.annotation.SagaStep;
 import org.fireflyframework.orchestration.saga.annotation.StepEvent;
@@ -43,9 +44,20 @@ public class RegisterApplicationDocumentSaga {
         this.commandBus = commandBus;
     }
 
-    @SagaStep(id = STEP_REGISTER_APPLICATION_DOCUMENT)
+    @SagaStep(id = STEP_REGISTER_APPLICATION_DOCUMENT, compensate = COMPENSATE_REMOVE_APPLICATION_DOCUMENT)
     @StepEvent(type = EVENT_APPLICATION_DOCUMENT_REGISTERED)
     public Mono<UUID> registerApplicationDocument(RegisterApplicationDocumentCommand cmd, ExecutionContext ctx) {
+        if (cmd.getLoanApplicationId() != null) {
+            ctx.putVariable(CTX_LOAN_APPLICATION_ID, cmd.getLoanApplicationId());
+        }
         return commandBus.send(cmd);
+    }
+
+    public Mono<Void> removeApplicationDocument(UUID applicationDocumentId, ExecutionContext ctx) {
+        UUID loanApplicationId = ctx.getVariableAs(CTX_LOAN_APPLICATION_ID, UUID.class);
+        if (applicationDocumentId == null || loanApplicationId == null) {
+            return Mono.empty();
+        }
+        return commandBus.send(new RemoveApplicationDocumentCommand(loanApplicationId, applicationDocumentId));
     }
 }

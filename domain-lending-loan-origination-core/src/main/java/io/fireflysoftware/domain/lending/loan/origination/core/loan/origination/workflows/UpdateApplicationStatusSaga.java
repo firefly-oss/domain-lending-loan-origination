@@ -25,6 +25,7 @@ import io.fireflysoftware.core.lending.origination.sdk.model.LoanApplicationStat
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.queries.GetApplicationStatusQuery;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.queries.GetLoanApplicationQuery;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RegisterLoanApplicationStatusHistoryCommand;
+import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RemoveLoanApplicationStatusHistoryCommand;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.UpdateApplicationStatusCommand;
 import org.fireflyframework.orchestration.saga.annotation.Saga;
 import org.fireflyframework.orchestration.saga.annotation.SagaStep;
@@ -74,7 +75,7 @@ public class UpdateApplicationStatusSaga {
                 .doOnNext(oldApplicationStatus -> ctx.putVariable(CTX_OLD_APPLICATION_STATUS, oldApplicationStatus));
     }
 
-    @SagaStep(id = STEP_UPDATE_APPLICATION_STATUS, dependsOn = STEP_RETRIEVE_APPLICATION_STATUS)
+    @SagaStep(id = STEP_UPDATE_APPLICATION_STATUS, dependsOn = STEP_RETRIEVE_APPLICATION_STATUS, compensate = "restoreApplicationStatus")
     @StepEvent(type = EVENT_APPLICATION_STATUS_UPDATED)
     public Mono<UUID> updateApplicationStatus(UpdateApplicationStatusCommand cmd, ExecutionContext ctx) {
         return commandBus.send(cmd
@@ -82,7 +83,23 @@ public class UpdateApplicationStatusSaga {
                         .withApplicationStatusId(ctx.getVariableAs(CTX_APPLICATION_STATUS, ApplicationStatusDTO.class).getApplicationStatusId()));
     }
 
-    @SagaStep(id = STEP_UPDATE_APPLICATION_STATUS_HISTORY, dependsOn = STEP_UPDATE_APPLICATION_STATUS)
+    public Mono<Void> restoreApplicationStatus(UUID updatedApplicationId, ExecutionContext ctx) {
+        ApplicationStatusDTO previous = ctx.getVariableAs(CTX_OLD_APPLICATION_STATUS, ApplicationStatusDTO.class);
+        LoanApplicationDTO application = ctx.getVariableAs(CTX_LOAN_APPLICATION, LoanApplicationDTO.class);
+        UUID loanApplicationId = application == null ? updatedApplicationId : application.getLoanApplicationId();
+        if (previous == null || previous.getApplicationStatusId() == null
+                || application == null || loanApplicationId == null) {
+            return Mono.empty();
+        }
+        UpdateApplicationStatusCommand restore = UpdateApplicationStatusCommand.builder()
+                .loanApplicationId(loanApplicationId)
+                .applicationStatusId(previous.getApplicationStatusId())
+                .loanApplication(application)
+                .build();
+        return commandBus.send(restore).then();
+    }
+
+    @SagaStep(id = STEP_UPDATE_APPLICATION_STATUS_HISTORY, dependsOn = STEP_UPDATE_APPLICATION_STATUS, compensate = "removeApplicationStatusHistory")
     @StepEvent(type = EVENT_APPLICATION_STATUS_HISTORY_UPDATED)
     public Mono<UUID> updateApplicationStatusHistory(UpdateApplicationStatusCommand cmd, ExecutionContext ctx) {
         RegisterLoanApplicationStatusHistoryCommand cmdHistory = cmd.getStatusHistoryCommand();
@@ -93,6 +110,14 @@ public class UpdateApplicationStatusSaga {
         cmdHistory.setChangedBy("system-auto-process");
         cmdHistory.setChangedAt(LocalDateTime.now());
         return commandBus.send(cmdHistory);
+    }
+
+    public Mono<Void> removeApplicationStatusHistory(UUID statusHistoryId, ExecutionContext ctx) {
+        LoanApplicationDTO application = ctx.getVariableAs(CTX_LOAN_APPLICATION, LoanApplicationDTO.class);
+        if (statusHistoryId == null || application == null || application.getLoanApplicationId() == null) {
+            return Mono.empty();
+        }
+        return commandBus.send(new RemoveLoanApplicationStatusHistoryCommand(application.getLoanApplicationId(), statusHistoryId));
     }
 
 }
