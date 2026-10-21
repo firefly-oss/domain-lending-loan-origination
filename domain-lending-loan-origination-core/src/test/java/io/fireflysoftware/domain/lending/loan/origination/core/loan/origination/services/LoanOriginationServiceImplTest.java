@@ -17,9 +17,11 @@
 
 package io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.services;
 
+import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RegisterApplicationPartyCommand;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RegisterLoanApplicationCommand;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.SubmitApplicationCommand;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.services.impl.LoanOriginationServiceImpl;
+import io.fireflysoftware.domain.lending.loan.origination.core.shared.CustomerContractLink;
 import org.fireflyframework.cqrs.command.CommandBus;
 import org.fireflyframework.cqrs.query.QueryBus;
 import org.fireflyframework.orchestration.saga.engine.SagaEngine;
@@ -34,10 +36,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,5 +96,51 @@ class LoanOriginationServiceImplTest {
         verify(engine).execute(eq("RegisterApplicationSaga"), captor.capture());
         // Reaching this point without an NPE during builder execution proves the fix.
         assertThat(captor.getValue()).isNotNull();
+    }
+
+    @Test
+    void submitApplication_linksThePartyBeforeTheSagaWritesTheLoan() {
+        UUID partyId = UUID.randomUUID();
+        UUID contractId = UUID.randomUUID();
+        var party = new RegisterApplicationPartyCommand();
+        party.setPartyId(partyId);
+        var command = new SubmitApplicationCommand();
+        command.setApplication(new RegisterLoanApplicationCommand());
+        command.setParties(List.of(party));
+
+        CustomerContractLink link = (id, existingContract, productId, currency, roleId) -> {
+            assertThat(id).isEqualTo(partyId);
+            return Mono.just(contractId);
+        };
+        var linked = new LoanOriginationServiceImpl(engine, queryBus, commandBus, link);
+        SagaResult sagaResult = mock(SagaResult.class);
+        when(engine.execute(eq("RegisterApplicationSaga"), any(StepInputs.class)))
+                .thenReturn(Mono.just(sagaResult));
+
+        StepVerifier.create(linked.submitApplication(command))
+                .expectNext(sagaResult)
+                .verifyComplete();
+
+        assertThat(party.getContractId()).isEqualTo(contractId);
+        assertThat(party.isContractLinked()).isTrue();
+        verify(engine).execute(eq("RegisterApplicationSaga"), any(StepInputs.class));
+    }
+
+    @Test
+    void submitApplication_doesNotWriteTheLoanWhenThePartyIsMissing() {
+        var party = new RegisterApplicationPartyCommand();
+        var command = new SubmitApplicationCommand();
+        command.setApplication(new RegisterLoanApplicationCommand());
+        command.setParties(List.of(party));
+
+        CustomerContractLink link = (id, existingContract, productId, currency, roleId) ->
+                Mono.error(new IllegalArgumentException("Party is required"));
+        var linked = new LoanOriginationServiceImpl(engine, queryBus, commandBus, link);
+
+        StepVerifier.create(linked.submitApplication(command))
+                .expectErrorMessage("Party is required")
+                .verify();
+
+        verify(engine, never()).execute(anyString(), any(StepInputs.class));
     }
 }

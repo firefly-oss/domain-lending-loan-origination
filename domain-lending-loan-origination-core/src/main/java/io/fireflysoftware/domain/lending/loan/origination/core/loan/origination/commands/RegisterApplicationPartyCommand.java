@@ -27,9 +27,11 @@ import java.util.UUID;
 @Data
 public class RegisterApplicationPartyCommand extends ApplicationPartyDTO implements Command<UUID> {
     private UUID loanApplicationId;
+    private UUID contractId;
+    private boolean contractLinked;
 
     public RegisterApplicationPartyCommand withLoanApplicationId(UUID loanApplicationId) {
-        this.loanApplicationId=loanApplicationId;
+        this.loanApplicationId = loanApplicationId;
         return this;
     }
 }

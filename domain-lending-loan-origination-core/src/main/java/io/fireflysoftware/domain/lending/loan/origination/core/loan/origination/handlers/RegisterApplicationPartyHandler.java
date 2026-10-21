@@ -21,6 +21,7 @@ import org.fireflyframework.cqrs.annotations.CommandHandlerComponent;
 import org.fireflyframework.cqrs.command.CommandHandler;
 import io.fireflysoftware.core.lending.origination.sdk.api.ApplicationPartyApi;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.commands.RegisterApplicationPartyCommand;
+import io.fireflysoftware.domain.lending.loan.origination.core.shared.CustomerContractLink;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
@@ -30,14 +31,20 @@ import java.util.UUID;
 public class RegisterApplicationPartyHandler extends CommandHandler<RegisterApplicationPartyCommand, UUID> {
 
     private final ApplicationPartyApi applicationPartyApi;
+    private final CustomerContractLink customerContract;
 
-    public RegisterApplicationPartyHandler(ApplicationPartyApi applicationPartyApi) {
+    public RegisterApplicationPartyHandler(ApplicationPartyApi applicationPartyApi, CustomerContractLink customerContract) {
         this.applicationPartyApi = applicationPartyApi;
+        this.customerContract = customerContract;
     }
 
     @Override
     protected Mono<UUID> doHandle(RegisterApplicationPartyCommand cmd) {
-        return applicationPartyApi.createParty(cmd.getLoanApplicationId(), cmd, UUID.randomUUID().toString())
+        Mono<UUID> linked = cmd.isContractLinked() && cmd.getContractId() != null
+                ? Mono.just(cmd.getContractId())
+                : customerContract.bind(cmd.getPartyId(), cmd.getContractId(), null, null, cmd.getRoleCodeId())
+                .doOnNext(cmd::setContractId);
+        return linked.then(applicationPartyApi.createParty(cmd.getLoanApplicationId(), cmd, UUID.randomUUID().toString()))
                 .mapNotNull(naturalPersonDTO ->
                         Objects.requireNonNull(Objects.requireNonNull(naturalPersonDTO)).getApplicationPartyId());
     }

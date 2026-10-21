@@ -30,6 +30,16 @@
             <groupId>io.fireflysoftware</groupId>
             <artifactId>core-lending-loan-origination-sdk</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fireflysoftware</groupId>
+            <artifactId>core-common-customer-mgmt-sdk</artifactId>
+            <version>26.10.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fireflysoftware</groupId>
+            <artifactId>core-common-contract-mgmt-sdk</artifactId>
+            <version>26.10.3</version>
+        </dependency>
 
         <!-- Common Libraries -->
         <dependency>

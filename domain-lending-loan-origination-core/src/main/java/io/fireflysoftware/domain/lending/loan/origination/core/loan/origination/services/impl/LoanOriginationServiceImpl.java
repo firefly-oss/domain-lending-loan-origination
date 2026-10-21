@@ -30,6 +30,8 @@ import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.workflows.RegisterApplicationDocumentSaga;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.workflows.RegisterScoreSaga;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.workflows.UpdateApplicationStatusSaga;
+import io.fireflysoftware.domain.lending.loan.origination.core.shared.CustomerContractLink;
+import io.fireflysoftware.domain.lending.loan.origination.core.shared.SandboxCustomerContractLink;
 import io.fireflysoftware.domain.lending.loan.origination.core.simulation.commands.PersistSimulationCommand;
 import org.fireflyframework.orchestration.saga.engine.SagaResult;
 import org.fireflyframework.orchestration.saga.engine.ExpandEach;
@@ -37,6 +39,7 @@ import org.fireflyframework.orchestration.saga.engine.SagaEngine;
 import org.fireflyframework.orchestration.saga.engine.StepInputs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -48,12 +51,19 @@ public class LoanOriginationServiceImpl implements LoanOriginationService {
     private final SagaEngine engine;
     private final QueryBus queryBus;
     private final CommandBus commandBus;
+    private final CustomerContractLink customerContract;
+
+    public LoanOriginationServiceImpl(SagaEngine engine, QueryBus queryBus, CommandBus commandBus) {
+        this(engine, queryBus, commandBus, new SandboxCustomerContractLink());
+    }
 
     @Autowired
-    public LoanOriginationServiceImpl(SagaEngine engine, QueryBus queryBus, CommandBus commandBus){
-        this.engine=engine;
+    public LoanOriginationServiceImpl(SagaEngine engine, QueryBus queryBus, CommandBus commandBus,
+                                      CustomerContractLink customerContract) {
+        this.engine = engine;
         this.queryBus = queryBus;
         this.commandBus = commandBus;
+        this.customerContract = customerContract;
     }
 
     @Override
@@ -61,18 +71,32 @@ public class LoanOriginationServiceImpl implements LoanOriginationService {
         // Defensively default the optional collections so callers (notably the experience tier)
         // can post a minimal SubmitApplicationCommand with only application set, without
         // tripping ExpandEach.of(...) on null. Each collection is independent and optional
-        // for the saga's per-step expansion.
-        StepInputs inputs = StepInputs.builder()
-                .forStepId("registerLoanApplication", command.getApplication())
-                .forStepId("registerApplicationParty", ExpandEach.of(nullSafe(command.getParties())))
-                .forStepId("registerApplicationDocument", ExpandEach.of(nullSafe(command.getDocuments())))
-                .forStepId("registerOffer", ExpandEach.of(nullSafe(command.getOffers())))
-                .forStepId("registerStatus", ExpandEach.of(nullSafe(command.getStatusHistories())))
-                .forStepId("registerScore", command.getScore())
-                .forStepId("registerDecision", command.getDecision())
-                .build();
+        // for the saga's per-step expansion. Parties are linked before the loan is written.
+        return linkParties(command.getParties()).then(Mono.defer(() -> {
+            StepInputs inputs = StepInputs.builder()
+                    .forStepId("registerLoanApplication", command.getApplication())
+                    .forStepId("registerApplicationParty", ExpandEach.of(nullSafe(command.getParties())))
+                    .forStepId("registerApplicationDocument", ExpandEach.of(nullSafe(command.getDocuments())))
+                    .forStepId("registerOffer", ExpandEach.of(nullSafe(command.getOffers())))
+                    .forStepId("registerStatus", ExpandEach.of(nullSafe(command.getStatusHistories())))
+                    .forStepId("registerScore", command.getScore())
+                    .forStepId("registerDecision", command.getDecision())
+                    .build();
+            return engine.execute("RegisterApplicationSaga", inputs);
+        }));
+    }
 
-        return engine.execute("RegisterApplicationSaga", inputs);
+    private Mono<Void> linkParties(List<RegisterApplicationPartyCommand> parties) {
+        if (parties == null || parties.isEmpty()) {
+            return Mono.empty();
+        }
+        return Flux.fromIterable(parties)
+                .concatMap(party -> customerContract.bind(party.getPartyId(), party.getContractId(), null, null, party.getRoleCodeId())
+                        .doOnNext(contractId -> {
+                            party.setContractId(contractId);
+                            party.setContractLinked(true);
+                        }))
+                .then();
     }
 
     private static <T> List<T> nullSafe(List<T> list) {

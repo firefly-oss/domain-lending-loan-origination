@@ -28,6 +28,7 @@ import io.fireflysoftware.core.lending.origination.sdk.model.ApplicationTaskDTO;
 import io.fireflysoftware.core.lending.origination.sdk.model.LoanApplicationDTO;
 import io.fireflysoftware.core.lending.origination.sdk.model.ProposedOfferDTO;
 import io.fireflysoftware.domain.lending.loan.origination.core.loan.origination.services.OriginationRecordService;
+import io.fireflysoftware.domain.lending.loan.origination.core.shared.CustomerContractLink;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -46,6 +47,7 @@ public class OriginationRecordServiceImpl implements OriginationRecordService {
     private final ApplicationDocumentApi applicationDocumentApi;
     private final ProposedOfferApi proposedOfferApi;
     private final LoanApplicationsApi loanApplicationsApi;
+    private final CustomerContractLink customerContract;
 
     public OriginationRecordServiceImpl(
             ApplicationPartyApi applicationPartyApi,
@@ -53,19 +55,22 @@ public class OriginationRecordServiceImpl implements OriginationRecordService {
             ApplicationTaskApi applicationTaskApi,
             ApplicationDocumentApi applicationDocumentApi,
             ProposedOfferApi proposedOfferApi,
-            LoanApplicationsApi loanApplicationsApi) {
+            LoanApplicationsApi loanApplicationsApi,
+            CustomerContractLink customerContract) {
         this.applicationPartyApi = applicationPartyApi;
         this.bankAccountsApi = bankAccountsApi;
         this.applicationTaskApi = applicationTaskApi;
         this.applicationDocumentApi = applicationDocumentApi;
         this.proposedOfferApi = proposedOfferApi;
         this.loanApplicationsApi = loanApplicationsApi;
+        this.customerContract = customerContract;
     }
 
     @Override
     public Mono<ApplicationPartyDTO> addParty(UUID applicationId, ApplicationPartyDTO party) {
         party.loanApplicationId(applicationId);
-        return applicationPartyApi.createParty(applicationId, party, key());
+        return customerContract.bind(party.getPartyId(), null, null, null, party.getRoleCodeId())
+                .then(applicationPartyApi.createParty(applicationId, party, key()));
     }
 
     @Override
