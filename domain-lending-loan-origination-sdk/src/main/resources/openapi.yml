@@ -360,6 +360,99 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PaginationResponseApplicationPartyDTO"
+    post:
+      tags:
+      - Loan Origination
+      summary: Add application party
+      operationId: addApplicationParty
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationPartyDTO"
+      responses:
+        "201":
+          description: Party created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationPartyDTO"
+  /api/v1/loan-origination/applications/{applicationId}/parties/{partyId}:
+    put:
+      tags:
+      - Loan Origination
+      summary: Update application party
+      operationId: updateApplicationParty
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: partyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationPartyDTO"
+      responses:
+        "200":
+          description: Party updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationPartyDTO"
+    delete:
+      tags:
+      - Loan Origination
+      summary: Remove application party
+      operationId: removeApplicationParty
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: partyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Party removed
   /api/v1/loan-origination/applications/{applicationId}/offers:
     get:
       tags:
@@ -474,6 +567,131 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ApplicationDocumentDTO"
+    delete:
+      tags:
+      - Loan Origination
+      summary: Delete application document
+      operationId: deleteApplicationDocument
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Document removed
+  /api/v1/loan-origination/applications/{applicationId}/tasks/{taskId}/complete:
+    post:
+      tags:
+      - Loan Origination
+      summary: Complete application task
+      operationId: completeApplicationTask
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Task completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationTaskDTO"
+  /api/v1/loan-origination/applications/{applicationId}/offers/{offerId}:
+    put:
+      tags:
+      - Loan Origination
+      summary: Update application offer
+      operationId: updateApplicationOffer
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: offerId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProposedOfferDTO"
+      responses:
+        "200":
+          description: Offer updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposedOfferDTO"
+  /api/v1/loan-origination/applications/{applicationId}/disbursement-account:
+    put:
+      tags:
+      - Loan Origination
+      summary: Configure disbursement account
+      operationId: configureDisbursementAccount
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoanApplicationDTO"
+      responses:
+        "200":
+          description: Disbursement account updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanApplicationDTO"
   /api/v1/loan-origination/applications/{applicationId}/detail:
     get:
       tags:
@@ -582,6 +800,63 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PaginationResponseApplicationExternalBankAccountDTO"
+    post:
+      tags:
+      - Loan Origination
+      summary: Register external bank account
+      operationId: registerExternalBankAccount
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationExternalBankAccountDTO"
+      responses:
+        "201":
+          description: External account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationExternalBankAccountDTO"
+  /api/v1/loan-origination/applications/{applicationId}/bank-accounts/{accountId}:
+    delete:
+      tags:
+      - Loan Origination
+      summary: Delete external bank account
+      operationId: deleteExternalBankAccount
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: External account removed
   /api/v1/loan-applications/{appId}:
     get:
       tags:
